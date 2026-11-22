@@ -193,7 +193,10 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .copy { font: 600 12px/1 var(--f-body); color: #e3eaf1; background: #22303e; border: 1px solid #33475a; border-radius: 6px; padding: 6px 10px; cursor: pointer; flex: none; }
 pre { margin: 0; padding: 12px 14px; overflow-x: auto; font: 13px/1.55 var(--f-mono); color: var(--code-ink); tab-size: 4; }
 .k { color: #c79bff; } .ty { color: #6fd6c6; } .fn { color: #8fb4ff; } .n { color: #ffa476; } .s { color: #b9e27d; } .c { color: #6f8191; font-style: italic; }
-.card-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
+.card-foot { display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: 10px; }
+.lc-link { text-decoration: none; border-bottom: 1px dashed currentColor; }
+.lc-link:hover, .lc-solve:hover { color: var(--accent); }
+.lc-solve { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; border-bottom: 1px dashed var(--muted); }
 .rev { font: 500 13px/1 var(--f-body); color: var(--ink); background: transparent; border: 1.5px solid var(--ink); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
 .rev[aria-pressed="true"] { background: var(--fast); border-color: var(--fast); color: #fff; }
 
@@ -673,13 +676,13 @@ n->end = true;` }
     const done = revised.has(p.id);
     return `<article class="card${done ? ' revised' : ''}" id="q-${p.id}" data-q="${p.id}">
       <div class="card-head"><span class="qno">#${p.id}</span><h3><a href="#q-${p.id}">${esc(p.title)}</a></h3>
-      <span class="lc">LC ${p.lc}</span><span class="pill ${p.diff}">${p.diff}</span>${tags}</div>
+      <a class="lc lc-link" href="https://leetcode.com/problems/${p.slug}/" target="_blank" rel="noopener" title="Open ${esc(p.title)} on LeetCode">LC ${p.lc} ↗</a><span class="pill ${p.diff}">${p.diff}</span>${tags}</div>
       ${desc ? `<p class="desc">${esc(desc[0])}<span class="ex"><b>e.g.</b>${esc(desc[1])}</span></p>` : ''}
       <p class="hook"><span class="story">story:</span>${hookHTML(p.hook)}</p>
       <figure class="viz" id="viz-${p.id}" data-def="${sel}">${window.VIZ ? VIZ.render(p.id, 0, 0, sel) : ''}</figure>
       <div class="ladder" role="group" aria-label="Solutions from naive to best">${ladder}</div>
       <div class="panel" id="panel-${p.id}">${solPanel(p, 0)}</div>
-      <div class="card-foot"><button type="button" class="rev" data-q="${p.id}" aria-pressed="${done}">${done ? 'Revised ✓' : 'Mark as revised'}</button></div>
+      <div class="card-foot"><a class="lc-solve" href="https://leetcode.com/problems/${p.slug}/" target="_blank" rel="noopener">Solve on LeetCode ↗</a><button type="button" class="rev" data-q="${p.id}" aria-pressed="${done}">${done ? 'Revised ✓' : 'Mark as revised'}</button></div>
     </article>`;
   }
 
