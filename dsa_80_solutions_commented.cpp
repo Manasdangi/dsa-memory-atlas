@@ -33,6 +33,10 @@ vector<int> twoSum(vector<int>& nums, int target) {
 }
 
 // [Optimised]  Time O(n log n)  ·  Space O(n)
+//   Intuition: After sorting, the smallest + largest pair tells you which way to move: too big means
+//   the largest can never be used with anything bigger, so drop it; too small means drop the
+//   smallest. Each step throws away one number for good.
+//   Remember: Sort, then squeeze: big sum → drop the biggest, small sum → drop the smallest.
 //   1. store (value, index) pairs, sort by value
 //   2. two pointers: sum too small → l++, too big → r--
 namespace lc1_optimised {
@@ -54,6 +58,10 @@ vector<int> twoSum(vector<int>& nums, int target) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: For every x you already know exactly which partner you need: target − x. The naive
+//   loop searches for it; a hash map just remembers everything seen so far, so the search becomes a
+//   single O(1) lookup.
+//   Remember: Don't search for the partner, remember it: seen[target − x].
 //   1. one pass: is (target − x) already in the map? → answer
 //   2. otherwise store x → index
 namespace lc1_best {
@@ -85,6 +93,10 @@ bool isAnagram(string s, string t) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Order does not matter for an anagram, only how many of each letter. Counting 26
+//   letters is cheaper than sorting, and +1 for s / −1 for t means a perfect match leaves every
+//   counter at zero.
+//   Remember: Anagram = same letter counts → one count array, +s −t, all zeros.
 //   1. one count[26]: +1 for s, −1 for t
 //   2. all zeros → anagram
 namespace lc242_best {
@@ -129,6 +141,9 @@ vector<vector<string>> groupAnagrams(vector<string>& strs) {
 }
 
 // [Optimised]  Time O(n·k log k)  ·  Space O(n·k)
+//   Intuition: All anagrams look identical once their letters are sorted, so the sorted word is a
+//   perfect group ID. Instead of comparing words pairwise, drop each word into the bucket of its ID.
+//   Remember: Sorted word = family surname → hash map of surname → words.
 //   1. key = sorted word
 //   2. map[key].push_back(word)
 namespace lc49_optimised {
@@ -146,6 +161,9 @@ vector<vector<string>> groupAnagrams(vector<string>& strs) {
 }
 
 // [Best]  Time O(n·k)  ·  Space O(n·k)
+//   Intuition: Sorting each word costs k log k. The 26 letter counts identify the family just as
+//   well and take O(k) to build, so use the count signature as the key instead.
+//   Remember: Same counts, same family: the key is the 26 counts, no sorting.
 //   1. key = 26 letter counts (no sorting)
 //   2. map[key].push_back(word)
 namespace lc49_best {
@@ -182,6 +200,9 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
 }
 
 // [Optimised]  Time O(n log k)  ·  Space O(n)
+//   Intuition: You only care about the k best, so never keep more than k. A min-heap of size k keeps
+//   the weakest of the current top k on top; anything weaker than it can be thrown out immediately.
+//   Remember: Top k → min-heap of size k, kick out the weakest.
 //   1. count frequencies
 //   2. min-heap of size k: push, pop when size > k
 namespace lc347_optimised {
@@ -201,6 +222,9 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: A frequency can never exceed n, so frequencies are small whole numbers. Put each
+//   number on the shelf of its frequency and read shelves from the top: no comparison sort needed.
+//   Remember: Frequency ≤ n → bucket by frequency, read from the top shelf.
 //   1. bucket[freq] = list of numbers (freq ≤ n)
 //   2. walk buckets from n down, collect k
 namespace lc347_best {
@@ -238,6 +262,9 @@ vector<int> productExceptSelf(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: "Everything except me" = everything on my left × everything on my right. Both sides
+//   are running products you can build in one pass each, so no division and no repeated multiplying.
+//   Remember: Except-self = left product × right product.
 //   1. pre[i] = product of everything left of i
 //   2. suf[i] = product of everything right of i; answer = pre × suf
 namespace lc238_optimised {
@@ -255,6 +282,9 @@ vector<int> productExceptSelf(vector<int>& nums) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1) extra
+//   Intuition: The left products can live in the answer array itself, and the right product only
+//   needs one running variable while you walk back. Same idea as two arrays, minus the extra memory.
+//   Remember: Left pass fills the answer, right pass multiplies in a running suffix.
 //   1. write prefix products into the answer
 //   2. sweep back with a running suffix variable
 namespace lc238_best {
@@ -292,6 +322,9 @@ int longestConsecutive(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n log n)  ·  Space O(1)
+//   Intuition: Sorting puts every consecutive chain side by side, so one left-to-right walk can
+//   count chain lengths. Duplicates are skipped because they neither break nor extend a chain.
+//   Remember: Sort, then count runs where next = prev + 1.
 //   1. sort; skip duplicates
 //   2. +1 neighbour extends the run, else reset
 namespace lc128_optimised {
@@ -310,6 +343,10 @@ int longestConsecutive(vector<int>& nums) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: A chain only needs to be counted once, from its first number. A number is a chain
+//   head exactly when x − 1 is missing from the set, so start counting only there; every number is
+//   visited at most twice overall.
+//   Remember: Only the first domino (no x − 1) starts counting.
 //   1. put everything in a hash set
 //   2. start counting only where x−1 is missing (chain head)
 namespace lc128_best {
@@ -349,6 +386,10 @@ int findLeastNumOfUniqueInts(vector<int>& arr, int k) {
 }
 
 // [Optimised]  Time O(n log n)  ·  Space O(n)
+//   Intuition: Each removal should finish off a whole distinct number as cheaply as possible. The
+//   cheapest numbers to eliminate are the rarest ones, so sort the frequencies and spend k on the
+//   smallest first.
+//   Remember: Kill the smallest gangs first.
 //   1. collect frequencies, sort ascending
 //   2. while k ≥ freq: k −= freq, unique−−
 namespace lc1481_optimised {
@@ -368,6 +409,9 @@ int findLeastNumOfUniqueInts(vector<int>& arr, int k) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: You only need frequencies in increasing order, and frequencies are at most n.
+//   Counting how many numbers have each frequency gives that order without sorting.
+//   Remember: Counting sort on frequencies: walk sizes 1, 2, 3 … and spend k.
 //   1. cntOfFreq[f] = how many numbers appear f times
 //   2. for f = 1..n remove as many whole groups as k allows
 namespace lc1481_best {
@@ -412,6 +456,9 @@ int maxSubArray(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: A subarray sum is the difference of two prefix sums. For each end point, the best
+//   start is the one with the smallest prefix before it, so track the running minimum prefix.
+//   Remember: Best subarray ending here = prefix now − smallest earlier prefix.
 //   1. prefix sums: best = pre[i] − smallest earlier prefix
 namespace lc53_optimised {
 int maxSubArray(vector<int>& nums) {
@@ -428,6 +475,10 @@ int maxSubArray(vector<int>& nums) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: If the sum carried in from the left is negative, it can only drag you down, so it is
+//   better to start fresh at the current number. Otherwise keep extending. The best value ever seen
+//   is the answer.
+//   Remember: Negative balance? Tear up the passbook and start fresh.
 //   1. cur = max(x, cur + x)  (restart or extend)
 //   2. best = max(best, cur)
 namespace lc53_best {
@@ -462,6 +513,10 @@ int subarraySum(vector<int>& nums, int k) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: A subarray (i, j] sums to k exactly when prefix[j] − prefix[i] = k, i.e. an earlier
+//   prefix equals prefix[j] − k. Counting earlier prefixes in a map answers "how many such i" in
+//   O(1) per position. Seed the map with {0: 1} for subarrays starting at index 0.
+//   Remember: Count of earlier prefixes equal to (now − k); seed with prefix 0.
 //   1. running prefix sum; map counts of earlier prefixes (start with {0:1})
 //   2. answer += count[prefix − k]
 namespace lc560_best {
@@ -495,6 +550,9 @@ int maxProfit(vector<int>& prices) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: For a sell day, the best buy day is simply the cheapest day before it. Keep that
+//   minimum as you walk, and every day check "what if I sold today?".
+//   Remember: Remember the cheapest day so far; sell today and compare.
 //   1. track min price so far
 //   2. profit today = price − min
 namespace lc121_best {
@@ -529,6 +587,9 @@ bool isPalindrome(string s) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: A palindrome compares the i-th character from the left with the i-th from the right.
+//   Walk two pointers inward, skipping non-alphanumerics, instead of building a cleaned copy.
+//   Remember: Two friends walk inward, skip puddles, must match every step.
 //   1. l from left, r from right, skip non-alphanumerics
 //   2. mismatch → false
 namespace lc125_best {
@@ -562,6 +623,9 @@ vector<int> twoSum(vector<int>& numbers, int target) {
 }
 
 // [Optimised]  Time O(n log n)  ·  Space O(1)
+//   Intuition: The array is sorted, so for each number the partner target − x can be found with
+//   binary search instead of a scan.
+//   Remember: Sorted → binary-search the partner.
 //   1. for each i, binary-search target − numbers[i] to its right
 namespace lc167_optimised {
 vector<int> twoSum(vector<int>& numbers, int target) {
@@ -581,6 +645,9 @@ vector<int> twoSum(vector<int>& numbers, int target) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Sorted order gives you direction: if l + r is too big, r can never pair with anything
+//   (everything else is ≥ l), so move r left; too small, move l right. One pass, no extra memory.
+//   Remember: Seesaw: too heavy → r−−, too light → l++.
 //   1. l = 0, r = n−1
 //   2. sum < target → l++; sum > target → r--
 namespace lc167_best {
@@ -618,6 +685,10 @@ vector<vector<int>> threeSum(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n²)  ·  Space O(n)
+//   Intuition: Fix the first number; now you need two others summing to −a[i], which is Two Sum. A
+//   hash set of numbers seen between i and j finds the third in O(1); a set of triplets removes
+//   duplicates.
+//   Remember: 3Sum = fix one + Two Sum with a hash set.
 //   1. fix i; for j > i look up −(a[i]+a[j]) in a hash set
 namespace lc15_optimised {
 vector<vector<int>> threeSum(vector<int>& nums) {
@@ -640,6 +711,9 @@ vector<vector<int>> threeSum(vector<int>& nums) {
 }
 
 // [Best]  Time O(n²)  ·  Space O(1) extra
+//   Intuition: Sort once, fix a captain, and run the two-pointer Two Sum on the rest. Sorting also
+//   makes duplicates neighbours, so skipping equal values gives unique triplets without a set.
+//   Remember: Sort, fix i, squeeze l and r, skip twins.
 //   1. sort; for each captain i (skip duplicates)
 //   2. two pointers l, r on the rest; skip duplicates after a hit
 namespace lc15_best {
@@ -685,6 +759,9 @@ int maxArea(vector<int>& height) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Area is limited by the shorter wall. Moving the taller wall inward can only shrink
+//   the width and never raise the limit, so the only move that can help is moving the shorter wall.
+//   Remember: Always move the shorter wall.
 //   1. l = 0, r = n−1, area = width × shorter wall
 //   2. move the pointer at the shorter wall inward
 namespace lc11_best {
@@ -719,6 +796,10 @@ int trap(vector<int>& height) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: Water above a bar = min(tallest on its left, tallest on its right) − its height.
+//   Those two maxima can be precomputed for every index in two passes, instead of rescanning for
+//   each bar.
+//   Remember: Precompute leftMax[] and rightMax[], then min − height.
 //   1. precompute leftMax[] and rightMax[] arrays
 namespace lc42_optimised {
 int trap(vector<int>& height) {
@@ -738,6 +819,10 @@ int trap(vector<int>& height) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: If the left wall is lower than the right wall, the water at l is decided only by
+//   leftMax, because something at least as tall is guaranteed on the right. So settle the lower
+//   side, add its water and move it inward.
+//   Remember: The lower side is settled: add water there, move it in.
 //   1. two pointers; the side with the smaller wall is "settled"
 //   2. add (sideMax − height) on that side, move it inward
 namespace lc42_best {
@@ -773,6 +858,9 @@ void sortColors(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n) two passes  ·  Space O(1)
+//   Intuition: There are only three possible values, so counting how many of each and rewriting the
+//   array is enough.
+//   Remember: Only 3 colours → count, then rewrite.
 //   1. count 0s, 1s, 2s; rewrite the array
 namespace lc75_optimised {
 void sortColors(vector<int>& nums) {
@@ -785,6 +873,10 @@ void sortColors(vector<int>& nums) {
 }
 
 // [Best]  Time O(n) one pass  ·  Space O(1)
+//   Intuition: Keep three zones: 0s before lo, 2s after hi, 1s between lo and mid. Each element is
+//   looked at once and swapped straight into its zone. After swapping with hi, re-check mid because
+//   the incoming value is unknown.
+//   Remember: 0 → swap left, 1 → step, 2 → swap right (don't step).
 //   1. lo = next slot for 0, hi = next slot for 2, mid = sweeper
 //   2. 0 → swap with lo; 2 → swap with hi (don't advance mid); 1 → mid++
 namespace lc75_best {
@@ -824,6 +916,9 @@ int lengthOfLongestSubstring(string s) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(k)
+//   Intuition: Valid windows only grow on the right and shrink on the left. When a duplicate enters,
+//   drop characters from the left until it is gone; each character enters and leaves the set once.
+//   Remember: Window with a set: duplicate boards → evict from the back.
 //   1. window [l, r] kept in a set
 //   2. while s[r] is already inside, erase s[l++]
 namespace lc3_optimised {
@@ -841,6 +936,9 @@ int lengthOfLongestSubstring(string s) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Instead of evicting one by one, remember where each character was last seen. If that
+//   position is inside the window, jump l straight past it.
+//   Remember: Store last index; on a repeat jump l to last + 1.
 //   1. remember last index of each char
 //   2. on a repeat inside the window, jump l to last+1 directly
 namespace lc3_best {
@@ -879,6 +977,10 @@ int characterReplacement(string s, int k) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: A window can be made all one letter if (length − count of its most common letter) ≤
+//   k. Grow the window; when it needs too many repaints, slide the left edge. The best window length
+//   seen is the answer.
+//   Remember: Valid if len − maxCount ≤ k; otherwise shrink.
 //   1. expand r, update maxCount
 //   2. while (len − maxCount > k) shrink l
 namespace lc424_best {
@@ -913,6 +1015,9 @@ bool checkInclusion(string s1, string s2) {
 }
 
 // [Optimised]  Time O(26·n)  ·  Space O(1)
+//   Intuition: A permutation of s1 is any window of the same length with the same letter counts.
+//   Slide a fixed-size window and update counts incrementally: one letter in, one letter out.
+//   Remember: Fixed window of |s1|, compare 26 counts while sliding.
 //   1. count arrays for s1 and the current window
 //   2. slide: add right char, remove left char, compare arrays
 namespace lc567_optimised {
@@ -932,6 +1037,10 @@ bool checkInclusion(string s1, string s2) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Track how many letters are still missing instead of comparing 26 counts each time.
+//   Entering letters that were needed reduce it; leaving letters that become needed increase it.
+//   Missing = 0 means a match.
+//   Remember: Keep a "missing" counter; zero means found.
 //   1. need[] = counts still missing; missing = m
 //   2. add char: if it was needed, missing−−; drop char: if now needed, missing++
 namespace lc567_best {
@@ -978,6 +1087,10 @@ string minWindow(string s, string t) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Expand right until the window covers everything in t, then shrink from the left as
+//   long as it still covers t. Every valid window is visited, each pointer moves at most n times,
+//   and the smallest is kept.
+//   Remember: Expand until it has everything, shrink while it still does.
 //   1. expand r: if s[r] was needed, missing−−
 //   2. while missing == 0: record, then drop s[l++] (missing++ if it becomes needed)
 namespace lc76_best {
@@ -1014,6 +1127,9 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
 }
 
 // [Optimised]  Time O(n log k)  ·  Space O(k)
+//   Intuition: Keep the window in a sorted multiset so the maximum is always the last element. Each
+//   step inserts one value and erases one, both O(log k).
+//   Remember: Sorted window: insert new, erase old, max = last.
 //   1. keep the window in a multiset (sorted)
 //   2. add new, erase the one leaving, max = last element
 namespace lc239_optimised {
@@ -1030,6 +1146,10 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
 }
 
 // [Best]  Time O(n)  ·  Space O(k)
+//   Intuition: A smaller number to the left of a bigger one can never be the max again while the
+//   bigger one is in the window. Keep a deque of candidates in decreasing order: pop smaller ones
+//   from the back, expired ones from the front.
+//   Remember: Tall newcomer kicks out shorter ones; front is the king.
 //   1. deque of indices with decreasing values
 //   2. drop front if it left the window; pop back while smaller than new
 namespace lc239_best {
@@ -1074,6 +1194,9 @@ bool isValid(string s) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: The most recently opened bracket must close first, which is exactly last-in-first-
+//   out. Push openers; each closer must match the top.
+//   Remember: Last opened, first closed → stack.
 //   1. opener → push
 //   2. closer → stack top must be its partner, pop
 namespace lc20_best {
@@ -1110,6 +1233,9 @@ public:
 }
 
 // [Best]  Time all O(1)  ·  Space O(n)
+//   Intuition: The minimum only changes when you push or pop, so record "the min at or below me"
+//   with every element. When it is popped, the previous min is already stored underneath.
+//   Remember: Every plate carries a note: min so far.
 //   1. push (value, min(value, previous min))
 namespace lc155_best {
 class MinStack {
@@ -1152,6 +1278,9 @@ int evalRPN(vector<string>& tokens) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: In postfix, an operator always applies to the two most recent values, which are on
+//   top of a stack. Pop two, apply, push the result.
+//   Remember: Numbers pile up; an operator eats the top two.
 //   1. number → push
 //   2. operator → pop b, pop a, push a op b
 namespace lc150_best {
@@ -1189,6 +1318,9 @@ vector<int> dailyTemperatures(vector<int>& t) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: A day waits on the stack until a warmer day shows up. When it does, every colder
+//   waiting day gets its answer at once. Each day is pushed and popped once.
+//   Remember: Colder days wait on a stack; a warm day answers them.
 //   1. monotonic stack of indices (decreasing temps)
 //   2. warmer day pops all colder ones and fills their answers
 namespace lc739_optimised {
@@ -1209,6 +1341,10 @@ vector<int> dailyTemperatures(vector<int>& t) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1) extra
+//   Intuition: Going right to left, answers to the right are already known. If day j is not warmer,
+//   jump by its answer res[j] straight to the next day warmer than j, skipping everything in
+//   between.
+//   Remember: Hop using answers you already have.
 //   1. go right-to-left; hop using answers already computed
 //   2. j += res[j] skips days that are known to be colder
 namespace lc739_best {
@@ -1247,6 +1383,9 @@ int largestRectangleArea(vector<int>& h) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: The best rectangle using bar i as its height stretches until the first shorter bar on
+//   each side. Monotonic stacks find "previous shorter" and "next shorter" for every bar in O(n).
+//   Remember: Height × (nextSmaller − prevSmaller − 1).
 //   1. prev-smaller index L[i] and next-smaller index R[i] via stacks
 //   2. area = h[i] × (R[i] − L[i] − 1)
 namespace lc84_optimised {
@@ -1275,6 +1414,10 @@ int largestRectangleArea(vector<int>& h) {
 }
 
 // [Best]  Time O(n) one pass  ·  Space O(n)
+//   Intuition: Keep bars in increasing height on a stack. When a shorter bar arrives, every taller
+//   bar it pops now knows both boundaries: the new bar on the right and the bar below it on the
+//   left.
+//   Remember: A shorter bar pops taller ones and closes their rectangles.
 //   1. increasing stack; a shorter bar (or the 0 sentinel at the end) pops taller bars
 //   2. popped bar's width = i − (new top) − 1
 namespace lc84_best {
@@ -1316,6 +1459,10 @@ int longestValidParentheses(string s) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: Keep the index of the last position that cannot be part of a valid run (start with
+//   −1) at the bottom of the stack. Every ")" that finds a match measures its length back to that
+//   wall; an unmatched ")" becomes the new wall.
+//   Remember: Stack holds the last wall; length = i − wall.
 //   1. stack of indices, start with −1
 //   2. '(' push i; ')' pop → empty? push i (new wall) : len = i − top
 namespace lc32_optimised {
@@ -1336,6 +1483,10 @@ int longestValidParentheses(string s) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Count opens and closes left to right: equal means a valid run, more closes means it
+//   is broken, so reset. Runs like "(()" never balance this way, so repeat the scan right to left
+//   with the roles swapped.
+//   Remember: Two passes of counters: reset when it breaks.
 //   1. left→right: count open/close; equal → record; close > open → reset
 //   2. right→left: same with roles swapped (catches "(()")
 namespace lc32_best {
@@ -1362,6 +1513,9 @@ int longestValidParentheses(string s) {
 // Story: A bouncer with a guest list: an unmatched ')' is thrown out on the spot; '(' still waiting on the stack are thrown out at closing time.
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: A ")" with no "(" before it can never be matched, so drop it immediately. A "(" still
+//   waiting at the end was never closed, so drop those too. Track waiting "(" positions on a stack.
+//   Remember: Unmatched ) now, unmatched ( at the end.
 //   1. stack of '(' indices; ')' with empty stack → mark drop
 //   2. leftover stack indices → mark drop; rebuild string
 namespace lc1249_optimised {
@@ -1384,6 +1538,10 @@ string minRemoveToMakeValid(string s) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1) extra
+//   Intuition: Same rule as the stack, using counts: the first pass drops ")" that arrive with
+//   nothing open; the open count left over is exactly how many "(" to drop, taken from the right
+//   end.
+//   Remember: Left pass drops bad ), right pass drops extra (.
 //   1. pass 1 (left→right): skip ')' with no open '('
 //   2. pass 2 (right→left): skip the extra '(' still open
 namespace lc1249_best {
@@ -1427,6 +1585,9 @@ int search(vector<int>& nums, int target) {
 }
 
 // [Best]  Time O(log n)  ·  Space O(1)
+//   Intuition: In a sorted array, one comparison with the middle tells you which half cannot contain
+//   the target, so you can throw that half away. log n halvings reach a single element.
+//   Remember: Compare with mid, discard the wrong half.
 //   1. lo..hi; m = lo + (hi−lo)/2
 //   2. too small → lo = m+1; too big → hi = m−1
 namespace lc704_best {
@@ -1457,6 +1618,9 @@ int search(vector<int>& nums, int target) {
 }
 
 // [Optimised]  Time O(log n), 2 searches  ·  Space O(1)
+//   Intuition: A rotated array is two sorted runs. Binary-search the pivot (the smallest element)
+//   first, then do a normal binary search in the run that can contain the target.
+//   Remember: Find the pivot, then search the right run.
 //   1. binary-search the pivot (smallest element)
 //   2. normal binary search in the half that can contain target
 namespace lc33_optimised {
@@ -1484,6 +1648,9 @@ int search(vector<int>& nums, int target) {
 }
 
 // [Best]  Time O(log n), 1 search  ·  Space O(1)
+//   Intuition: Cut a rotated array anywhere and at least one half is sorted. Check whether the
+//   target lies inside the sorted half; if yes go there, otherwise go to the other half.
+//   Remember: One half is always sorted: is the target inside it?
 //   1. if left half sorted: target inside it? go left : go right
 //   2. else right half sorted: target inside it? go right : go left
 namespace lc33_best {
@@ -1518,6 +1685,9 @@ int findMin(vector<int>& nums) {
 }
 
 // [Best]  Time O(log n)  ·  Space O(1)
+//   Intuition: Compare mid with the right end. If mid is bigger, the drop (minimum) must be to the
+//   right of mid; otherwise mid could be the minimum, so keep it and search left.
+//   Remember: mid > right end → the cliff is to the right.
 //   1. nums[m] > nums[hi] → lo = m+1, else hi = m
 namespace lc153_best {
 int findMin(vector<int>& nums) {
@@ -1551,6 +1721,9 @@ int minEatingSpeed(vector<int>& piles, int h) {
 }
 
 // [Best]  Time O(n log max)  ·  Space O(1)
+//   Intuition: If Koko can finish at speed k, she can finish at any speed above k: the yes/no answer
+//   flips only once. Binary-search that flip point between 1 and the largest pile.
+//   Remember: Binary search on the answer: smallest speed that works.
 //   1. lo = 1, hi = max pile
 //   2. feasible(mid) → hi = mid, else lo = mid + 1
 namespace lc875_best {
@@ -1590,6 +1763,10 @@ int shipWithinDays(vector<int>& w, int days) {
 }
 
 // [Best]  Time O(n log sum)  ·  Space O(1)
+//   Intuition: A bigger truck never needs more days, so "can ship in D days" is monotonic in
+//   capacity. Binary-search the capacity between the heaviest parcel and the total weight, checking
+//   each guess greedily.
+//   Remember: Monotonic yes/no → binary search on capacity.
 //   1. binary search capacity in [max, sum]
 //   2. ok(cap): greedily fill the truck, count days
 namespace lc1011_best {
@@ -1628,6 +1805,10 @@ int findPeakElement(vector<int>& nums) {
 }
 
 // [Best]  Time O(log n)  ·  Space O(1)
+//   Intuition: If nums[mid] < nums[mid + 1], the path goes up to the right, and an upward path must
+//   reach a peak before it ends. So a peak is guaranteed on that side; otherwise mid or something to
+//   its left is a peak.
+//   Remember: Walk uphill; a peak must be there.
 //   1. nums[m] < nums[m+1] → uphill on right: lo = m+1, else hi = m
 namespace lc162_best {
 int findPeakElement(vector<int>& nums) {
@@ -1663,6 +1844,9 @@ ListNode* reverseList(ListNode* head) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n) call stack
+//   Intuition: Trust the recursion: reverse everything after head, then the node right after head
+//   (now the tail of the reversed part) should point back to head, and head becomes the new tail.
+//   Remember: Reverse the rest, then hook head on at the end.
 //   1. reverse the rest, then make head->next point back to head
 namespace lc206_optimised {
 ListNode* reverseList(ListNode* head) {
@@ -1675,6 +1859,9 @@ ListNode* reverseList(ListNode* head) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Walk once and flip each next pointer backward. Save next before flipping or you lose
+//   the rest of the list; prev ends up as the new head.
+//   Remember: Save next, flip, step prev and cur.
 //   1. save next, flip cur->next = prev, step prev and cur forward
 namespace lc206_best {
 ListNode* reverseList(ListNode* head) {
@@ -1708,6 +1895,9 @@ ListNode* mergeTwoLists(ListNode* a, ListNode* b) {
 }
 
 // [Optimised]  Time O(n+m)  ·  Space O(n+m) call stack
+//   Intuition: The smaller of the two heads must come first. Its next is just the merge of
+//   everything that is left, which is the same problem again.
+//   Remember: Smaller head wins; its next = merge(rest).
 //   1. smaller head wins; its next = merge(rest)
 namespace lc21_optimised {
 ListNode* mergeTwoLists(ListNode* a, ListNode* b) {
@@ -1723,6 +1913,10 @@ ListNode* mergeTwoLists(ListNode* a, ListNode* b) {
 }
 
 // [Best]  Time O(n+m)  ·  Space O(1)
+//   Intuition: Like a zipper: keep a tail pointer and always attach the smaller front node. A dummy
+//   head removes the special case for the first node; leftovers are already sorted, so attach them
+//   as is.
+//   Remember: Dummy head + always pull the smaller tooth.
 //   1. dummy + tail pointer; attach the smaller node each step
 //   2. attach whatever is left over
 namespace lc21_best {
@@ -1757,6 +1951,9 @@ bool hasCycle(ListNode* head) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: On a loop, a runner moving 2 steps closes the gap to a runner moving 1 step by one
+//   node per move, so it must land on it. Without a loop the fast runner falls off the end.
+//   Remember: Tortoise and hare: they meet only on a loop.
 //   1. slow moves 1, fast moves 2; they meet → cycle
 namespace lc141_best {
 bool hasCycle(ListNode* head) {
@@ -1788,6 +1985,10 @@ ListNode* removeNthFromEnd(ListNode* head, int n) {
 }
 
 // [Best]  Time O(n) one pass  ·  Space O(1)
+//   Intuition: Keep a gap of n + 1 nodes between two pointers. When the front one falls off the end,
+//   the back one is exactly one node before the one to delete. A dummy node handles deleting the
+//   head.
+//   Remember: Rope of n + 1 nodes: front hits null, back is just before the victim.
 //   1. move fast n+1 steps ahead from the dummy
 //   2. move both until fast is null; unlink slow->next
 namespace lc19_best {
@@ -1837,6 +2038,10 @@ public:
 }
 
 // [Best]  Time O(1) per op  ·  Space O(cap)
+//   Intuition: You need O(1) lookup (hash map) and O(1) "move to front / remove from back" (doubly
+//   linked list). The map stores each key's node, so you can splice it to the front without
+//   searching.
+//   Remember: Hash map for finding, linked list for ordering.
 //   1. doubly linked list (order) + hash map key → list node
 //   2. get/put: splice node to front; evict from back
 namespace lc146_best {
@@ -1877,6 +2082,9 @@ public:
 // Story: Ask each child "how tall are you?", take the taller answer and add 1 for yourself. Recursion is just delegating to your children.
 
 // [Recursive DFS]  Time O(n)  ·  Space O(h)
+//   Intuition: The depth of a tree is 1 (the root) plus the depth of its deeper subtree. An empty
+//   tree has depth 0. The recursion just asks each child and combines.
+//   Remember: Depth = 1 + max(left, right).
 //   1. depth = 1 + max(depth(left), depth(right)); null → 0
 namespace lc104_recursive_dfs {
 int maxDepth(TreeNode* root) {
@@ -1887,6 +2095,9 @@ int maxDepth(TreeNode* root) {
 }
 
 // [Iterative BFS]  Time O(n)  ·  Space O(width)
+//   Intuition: Process the tree floor by floor with a queue; the number of floors you process is the
+//   depth.
+//   Remember: Count BFS levels.
 //   1. process the queue one level at a time; count levels
 namespace lc104_iterative_bfs {
 int maxDepth(TreeNode* root) {
@@ -1911,6 +2122,9 @@ int maxDepth(TreeNode* root) {
 // Story: Mirror selfie: at every node swap the left and right hands, then tell both children to do the same.
 
 // [Recursive DFS]  Time O(n)  ·  Space O(h)
+//   Intuition: Mirroring a tree means swapping left and right at every node. Do it at the root, then
+//   let each child do the same for its own subtree.
+//   Remember: Swap my children, then recurse.
 //   1. swap(left, right), recurse on both
 namespace lc226_recursive_dfs {
 TreeNode* invertTree(TreeNode* root) {
@@ -1923,6 +2137,9 @@ TreeNode* invertTree(TreeNode* root) {
 }
 
 // [Iterative BFS]  Time O(n)  ·  Space O(width)
+//   Intuition: The order of swapping does not matter, only that every node gets swapped once, so a
+//   queue visiting every node works too.
+//   Remember: Visit every node once and swap its children.
 //   1. queue; pop node, swap its children, push them
 namespace lc226_iterative_bfs {
 TreeNode* invertTree(TreeNode* root) {
@@ -1957,6 +2174,10 @@ int diameterOfBinaryTree(TreeNode* root) {
 }
 
 // [Best]  Time O(n)  ·  Space O(h)
+//   Intuition: The longest path that bends at a node uses its left height + right height. A single
+//   DFS that returns heights can update the best bend on the way back up, instead of recomputing
+//   heights.
+//   Remember: Return height, update best with L + R.
 //   1. one DFS returns height; on the way, best = max(best, L + R)
 namespace lc543_best {
 int diameterOfBinaryTree(TreeNode* root) {
@@ -1977,6 +2198,9 @@ int diameterOfBinaryTree(TreeNode* root) {
 // Story: Floors of a building: before you start a floor, count how many people are in the queue (snapshot the size) and serve exactly that many.
 
 // [DFS with depth]  Time O(n)  ·  Space O(h)
+//   Intuition: Carry the depth down the DFS and append each value to the list for its depth.
+//   Visiting left before right keeps each level in left-to-right order.
+//   Remember: res[depth].push_back(val).
 //   1. dfs(node, depth): res[depth].push_back(val)
 namespace lc102_dfs_with_depth {
 void dfs(TreeNode* r, int d, vector<vector<int>>& res) {
@@ -1994,6 +2218,9 @@ vector<vector<int>> levelOrder(TreeNode* root) {
 }
 
 // [BFS (standard)]  Time O(n)  ·  Space O(width)
+//   Intuition: A queue serves nodes in the order they were discovered, which is level by level.
+//   Snapshot the queue size at the start of a level and pop exactly that many.
+//   Remember: Queue size at the start = nodes on this floor.
 //   1. size = q.size(); pop size nodes into one level; push children
 namespace lc102_bfs_standard {
 vector<vector<int>> levelOrder(TreeNode* root) {
@@ -2038,6 +2265,10 @@ bool isValidBST(TreeNode* root) {
 }
 
 // [Best]  Time O(n)  ·  Space O(h)
+//   Intuition: Every node must respect all of its ancestors, not just its parent. Pass down an
+//   allowed (low, high) range: going left lowers the ceiling to the node, going right raises the
+//   floor.
+//   Remember: Each node carries a range ticket from its ancestors.
 //   1. ok(node, lo, hi): lo < val < hi
 //   2. left gets (lo, val), right gets (val, hi)
 namespace lc98_best {
@@ -2078,6 +2309,10 @@ TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
 }
 
 // [Best]  Time O(n)  ·  Space O(h)
+//   Intuition: Each subtree reports whether it contains p or q. The first node that hears from both
+//   its left and its right is the lowest node with both below it. If the node itself is p or q, it
+//   reports itself.
+//   Remember: First node with a hit on both sides is the LCA.
 //   1. null or p or q → return it
 //   2. both sides non-null → I am the LCA; else pass up the non-null side
 namespace lc236_best {
@@ -2111,6 +2346,9 @@ int kthSmallest(TreeNode* root, int k) {
 }
 
 // [Best]  Time O(h + k)  ·  Space O(h)
+//   Intuition: An in-order walk of a BST visits values in sorted order. Doing it iteratively lets
+//   you stop as soon as you have counted k nodes.
+//   Remember: In-order = sorted; stop at the k-th.
 //   1. iterative in-order with a stack
 //   2. count down k as you pop; stop at 0
 namespace lc230_best {
@@ -2131,6 +2369,9 @@ int kthSmallest(TreeNode* root, int k) {
 // Story: Stand to the right of the building and look in: on each floor you only see the LAST person in that row.
 
 // [BFS]  Time O(n)  ·  Space O(width)
+//   Intuition: From the right side you see the last node of every level. A level-order BFS hands you
+//   each level in order, so take its last node.
+//   Remember: Last node of each BFS level.
 //   1. level-order; record the last node of each level
 namespace lc199_bfs {
 vector<int> rightSideView(TreeNode* root) {
@@ -2151,6 +2392,9 @@ vector<int> rightSideView(TreeNode* root) {
 }
 
 // [DFS right-first]  Time O(n)  ·  Space O(h)
+//   Intuition: If you always visit the right child first, the first node you reach at each new depth
+//   is the one visible from the right.
+//   Remember: Right-first DFS: first node at each new depth.
 //   1. visit right before left; first node seen at each new depth is visible
 namespace lc199_dfs_right_first {
 void dfs(TreeNode* r, int d, vector<int>& res) {
@@ -2184,6 +2428,9 @@ int findKthLargest(vector<int>& nums, int k) {
 }
 
 // [Optimised]  Time O(n log k)  ·  Space O(k)
+//   Intuition: Keep only the k largest seen so far in a min-heap. Its top is the smallest of those
+//   k, which is the k-th largest overall when you finish.
+//   Remember: Min-heap of size k; top = k-th largest.
 //   1. min-heap; push each; pop when size > k; top is the answer
 namespace lc215_optimised {
 int findKthLargest(vector<int>& nums, int k) {
@@ -2197,6 +2444,9 @@ int findKthLargest(vector<int>& nums, int k) {
 }
 
 // [Best]  Time O(n) average  ·  Space O(1)
+//   Intuition: Partitioning around a pivot puts it at its final sorted position. If that is not the
+//   target position n − k, you only need to continue on one side, which averages O(n).
+//   Remember: Quickselect: partition, keep only the side with the target.
 //   1. quickselect: random pivot, 3-way partition
 //   2. recurse only into the side that holds index n−k
 namespace lc215_best {
@@ -2235,6 +2485,9 @@ vector<vector<int>> kClosest(vector<vector<int>>& pts, int k) {
 }
 
 // [Optimised]  Time O(n log k)  ·  Space O(k)
+//   Intuition: Keep the k nearest in a max-heap by distance. The farthest of them sits on top, so
+//   any closer point replaces it.
+//   Remember: Max-heap of size k; drop the farthest.
 //   1. max-heap of (dist, index), size ≤ k
 namespace lc973_optimised {
 vector<vector<int>> kClosest(vector<vector<int>>& pts, int k) {
@@ -2250,6 +2503,9 @@ vector<vector<int>> kClosest(vector<vector<int>>& pts, int k) {
 }
 
 // [Best]  Time O(n) average  ·  Space O(1)
+//   Intuition: You do not need the k points sorted, only separated from the rest. nth_element
+//   (quickselect) partitions around the k-th distance in average O(n).
+//   Remember: Partition around the k-th distance.
 //   1. quickselect (nth_element) by distance, take first k
 namespace lc973_best {
 vector<vector<int>> kClosest(vector<vector<int>>& pts, int k) {
@@ -2280,6 +2536,9 @@ ListNode* mergeKLists(vector<ListNode*>& lists) {
 }
 
 // [Optimised]  Time O(N log k)  ·  Space O(k)
+//   Intuition: The next node of the merged list is always the smallest among the current heads of
+//   the k lists. A min-heap gives that smallest head in O(log k).
+//   Remember: Heap of list heads; pop smallest, push its next.
 //   1. push every list head into a min-heap
 //   2. pop smallest, attach, push its next
 namespace lc23_optimised {
@@ -2300,6 +2559,9 @@ ListNode* mergeKLists(vector<ListNode*>& lists) {
 }
 
 // [Best]  Time O(N log k)  ·  Space O(1) extra
+//   Intuition: Merging two sorted lists is easy. Merge them in pairs, then pairs of pairs, like a
+//   tournament: log k rounds, each touching all N nodes, with no heap.
+//   Remember: Pairwise merging, tournament style.
 //   1. divide & conquer: merge pairs (0,1),(2,3)… then (0,2)… like a tournament
 namespace lc23_best {
 ListNode* merge2(ListNode* a, ListNode* b) {
@@ -2327,6 +2589,9 @@ ListNode* mergeKLists(vector<ListNode*>& lists) {
 // Story: The busiest task builds the skeleton: (maxFreq − 1) frames of width (n + 1), plus one slot for every task tied at the max. If the other tasks overflow the frames, there's no idle time.
 
 // [Simulation]  Time O(T log 26)  ·  Space O(26)
+//   Intuition: Always running the task with the most copies left keeps the busiest task from forcing
+//   idle time at the end. A queue holds tasks that are cooling down.
+//   Remember: Run the most frequent ready task; park it for n ticks.
 //   1. max-heap of remaining counts + cooldown queue (count, readyTime)
 //   2. each tick: run the biggest task, park it; release tasks whose cooldown ended
 namespace lc621_simulation {
@@ -2354,6 +2619,10 @@ int leastInterval(vector<char>& tasks, int n) {
 }
 
 // [Best]  Time O(T)  ·  Space O(26)
+//   Intuition: The busiest task decides the shape: (maxFreq − 1) blocks of length n + 1, plus a
+//   final row for every task tied at maxFreq. If there are more tasks than slots, no idle time is
+//   needed at all.
+//   Remember: max(tasks, (maxFreq − 1)(n + 1) + countOfMax).
 //   1. answer = max(total tasks, (maxFreq − 1) × (n + 1) + countOfMax)
 namespace lc621_best {
 int leastInterval(vector<char>& tasks, int n) {
@@ -2386,6 +2655,10 @@ public:
 }
 
 // [Best]  Time add O(log n), median O(1)  ·  Space O(n)
+//   Intuition: The median sits between the smaller half and the larger half. Keep the smaller half
+//   in a max-heap and the larger half in a min-heap, balanced in size, so the median is always on
+//   top.
+//   Remember: Two heaps: max-heap small half, min-heap big half.
 //   1. push to lo (max-heap), move lo.top to hi (min-heap)
 //   2. if hi bigger, move hi.top back to lo
 namespace lc295_best {
@@ -2436,6 +2709,9 @@ vector<vector<int>> merge(vector<vector<int>>& in) {
 }
 
 // [Best]  Time O(n log n)  ·  Space O(n)
+//   Intuition: After sorting by start, an interval can only overlap the one just before it in the
+//   merged list. So either extend the last merged interval or start a new one.
+//   Remember: Sort by start; overlap → stretch the end.
 //   1. sort by start
 //   2. overlap with last merged → extend its end, else append
 namespace lc56_best {
@@ -2473,6 +2749,9 @@ vector<vector<int>> insert(vector<vector<int>>& in, vector<int>& nw) {
 }
 
 // [Best]  Time O(n)  ·  Space O(n)
+//   Intuition: The list is already sorted, so it splits into three runs: intervals entirely before
+//   the new one, intervals overlapping it, and intervals after it. Copy, merge, copy.
+//   Remember: Before, overlap (merge), after.
 //   1. copy all that end before new starts
 //   2. swallow all that start before new ends (min start, max end); copy the rest
 namespace lc57_best {
@@ -2514,6 +2793,9 @@ int minMeetingRooms(vector<vector<int>>& in) {
 }
 
 // [Optimised]  Time O(n log n)  ·  Space O(n)
+//   Intuition: Process meetings by start time. A room is free if the meeting that ends earliest has
+//   already finished, so keep end times in a min-heap and reuse that room.
+//   Remember: Min-heap of end times; reuse the earliest-free room.
 //   1. sort by start; min-heap of end times
 //   2. earliest end ≤ start → pop (reuse); push this end; answer = heap size
 namespace lc253_optimised {
@@ -2530,6 +2812,10 @@ int minMeetingRooms(vector<vector<int>>& in) {
 }
 
 // [Best]  Time O(n log n)  ·  Space O(n)
+//   Intuition: Only the number of rooms matters, not which one. Sort starts and ends separately and
+//   sweep: a start takes a room, an end that happened by then gives one back. The peak is the
+//   answer.
+//   Remember: Sweep starts and ends; track the peak.
 //   1. sort starts and ends separately
 //   2. sweep: a start → rooms++, any end ≤ that start → rooms−−
 namespace lc253_best {
@@ -2572,6 +2858,10 @@ int eraseOverlapIntervals(vector<vector<int>>& in) {
 }
 
 // [Best]  Time O(n log n)  ·  Space O(1)
+//   Intuition: To keep as many intervals as possible, always keep the one that ends earliest: it
+//   leaves the most room for everything after it. Anything that overlaps the last kept interval is
+//   removed.
+//   Remember: Sort by end, keep the earliest finisher.
 //   1. sort by END
 //   2. start ≥ last kept end → keep it, else remove it
 namespace lc435_best {
@@ -2595,6 +2885,9 @@ int eraseOverlapIntervals(vector<vector<int>>& in) {
 // Story: Fly over the sea with a paint bucket: land on any unpainted land, flood-paint the whole island, count +1. Repeat.
 
 // [DFS flood fill]  Time O(m·n)  ·  Space O(m·n) stack
+//   Intuition: Each unvisited land cell starts a new island. Flood-fill from it to mark the whole
+//   island, so it is never counted again.
+//   Remember: New land → count + 1, sink the whole island.
 //   1. scan cells; on '1' → count++, DFS sinks the island to '0'
 namespace lc200_dfs_flood_fill {
 void dfs(vector<vector<char>>& g, int r, int c) {
@@ -2617,6 +2910,9 @@ int numIslands(vector<vector<char>>& g) {
 }
 
 // [BFS]  Time O(m·n)  ·  Space O(min(m,n))
+//   Intuition: Same flood fill with a queue instead of recursion, which avoids deep call stacks on
+//   large grids. Mark cells when you push them.
+//   Remember: BFS flood fill; mark on push.
 //   1. same idea with a queue (no deep recursion)
 namespace lc200_bfs {
 int numIslands(vector<vector<char>>& g) {
@@ -2645,6 +2941,9 @@ int numIslands(vector<vector<char>>& g) {
 }
 
 // [Union-Find]  Time O(m·n·α)  ·  Space O(m·n)
+//   Intuition: Treat every land cell as its own island, then join neighbouring land cells. Every
+//   successful join merges two islands into one, so subtract one per join.
+//   Remember: Islands = land cells − successful unions.
 //   1. every land cell starts as its own island (count++)
 //   2. union with right/down land neighbours; each successful union → count−−
 namespace lc200_union_find {
@@ -2703,6 +3002,9 @@ int orangesRotting(vector<vector<int>>& g) {
 }
 
 // [Best]  Time O(m·n)  ·  Space O(m·n)
+//   Intuition: All rotten oranges spread at the same time, so start BFS from all of them at once.
+//   Each BFS level is one minute; if fresh oranges remain at the end, they were unreachable.
+//   Remember: Multi-source BFS: level = minute.
 //   1. push ALL rotten cells first, count fresh
 //   2. BFS level by level = minutes; fresh left → −1
 namespace lc994_best {
@@ -2738,6 +3040,9 @@ int orangesRotting(vector<vector<int>>& g) {
 // Story: Friend circles: everybody shakes hands (union) with their direct friends. Count how many separate circles are left standing.
 
 // [DFS]  Time O(n²)  ·  Space O(n)
+//   Intuition: A province is a connected component. Each DFS from an unvisited city marks its whole
+//   province, so count how many DFS calls you start.
+//   Remember: Count DFS starts.
 //   1. for each unvisited city: count++, DFS marks its whole province
 namespace lc547_dfs {
 void dfs(vector<vector<int>>& M, vector<bool>& vis, int i) {
@@ -2758,6 +3063,9 @@ int findCircleNum(vector<vector<int>>& M) {
 }
 
 // [Union-Find]  Time O(n² · α)  ·  Space O(n)
+//   Intuition: Start with every city alone and union each connected pair. Each union that joins two
+//   different groups reduces the number of provinces by one.
+//   Remember: n − successful unions.
 //   1. start with n components; union every connected pair
 //   2. each union that merges two roots → components−−
 namespace lc547_union_find {
@@ -2784,6 +3092,9 @@ int findCircleNum(vector<vector<int>>& M) {
 // Story: Getting dressed: socks before shoes, shirt before tie. If the rules loop (shoes before socks before shoes), it's impossible. Keep picking clothes that have no pending prerequisites.
 
 // [DFS cycle check]  Time O(V+E)  ·  Space O(V+E)
+//   Intuition: You can finish everything unless the prerequisites form a cycle. In DFS, reaching a
+//   node that is still on the current path (grey) means a cycle.
+//   Remember: Grey node seen again → cycle → false.
 //   1. colours: 0 = new, 1 = on current path, 2 = done
 //   2. reaching a 1 again = cycle
 namespace lc207_dfs_cycle_check {
@@ -2807,6 +3118,9 @@ bool canFinish(int n, vector<vector<int>>& pre) {
 }
 
 // [Kahn's BFS]  Time O(V+E)  ·  Space O(V+E)
+//   Intuition: Repeatedly take a course with no remaining prerequisites and remove its edges. If a
+//   cycle exists, its courses never reach zero prerequisites, so fewer than n get taken.
+//   Remember: Kahn: take indegree 0, count; count < n → cycle.
 //   1. indegree count; queue all with indegree 0
 //   2. pop, "take" it, decrement neighbours; taken == n → possible
 namespace lc207_kahn_s_bfs {
@@ -2831,6 +3145,9 @@ bool canFinish(int n, vector<vector<int>>& pre) {
 // Story: Same as getting dressed, but now write down the ORDER in which you picked clothes off the "no pending prerequisites" pile.
 
 // [DFS post-order]  Time O(V+E)  ·  Space O(V+E)
+//   Intuition: In DFS a course finishes only after every course that depends on it has finished.
+//   Reversing the finish order therefore puts every course before its dependents.
+//   Remember: Reverse post-order = valid order.
 //   1. DFS with colours; add a node when it finishes
 //   2. reverse the finish order; a cycle → return {}
 namespace lc210_dfs_post_order {
@@ -2856,6 +3173,9 @@ vector<int> findOrder(int n, vector<vector<int>>& pre) {
 }
 
 // [Kahn's BFS]  Time O(V+E)  ·  Space O(V+E)
+//   Intuition: The order in which Kahn's algorithm removes indegree-0 courses is already a valid
+//   schedule.
+//   Remember: Kahn's pop order is the answer.
 //   1. queue of indegree-0 nodes; pop order = answer
 //   2. fewer than n popped → cycle → {}
 namespace lc210_kahn_s_bfs {
@@ -2880,6 +3200,9 @@ vector<int> findOrder(int n, vector<vector<int>>& pre) {
 // Story: Dijkstra is water flowing through pipes: always flood the NEAREST dry junction next (min-heap by distance). The last junction to get wet is the answer.
 
 // [Bellman-Ford]  Time O(V·E)  ·  Space O(V)
+//   Intuition: A shortest path uses at most n − 1 edges. Relaxing every edge n − 1 times lets
+//   distances spread along any such path. The slowest node's distance is the answer.
+//   Remember: Relax all edges n − 1 times.
 //   1. relax every edge V−1 times
 //   2. any node still ∞ → −1, else max distance
 namespace lc743_bellman_ford {
@@ -2897,6 +3220,9 @@ int networkDelayTime(vector<vector<int>>& times, int n, int k) {
 }
 
 // [Dijkstra]  Time O(E log V)  ·  Space O(V+E)
+//   Intuition: With non-negative times, the closest unfinished node's distance can never improve
+//   later. Always finalise the nearest node next with a min-heap, and relax its edges.
+//   Remember: Always expand the nearest node (min-heap).
 //   1. min-heap of (dist, node); skip stale entries
 //   2. relax neighbours: d[u] + w < d[v] → update, push
 namespace lc743_dijkstra {
@@ -2957,6 +3283,9 @@ int ladderLength(string begin, string end, vector<string>& words) {
 }
 
 // [Optimised]  Time O(N·L·26)  ·  Space O(N)
+//   Intuition: Each word has only L × 26 possible one-letter changes, far fewer than comparing with
+//   every word. Generate them and keep the ones in the dictionary; BFS gives the fewest steps.
+//   Remember: Generate neighbours by changing one letter.
 //   1. BFS; neighbours = try all 26 letters at each position, keep those in the set
 //   2. erase from set when visited
 namespace lc127_optimised {
@@ -2989,6 +3318,9 @@ int ladderLength(string begin, string end, vector<string>& words) {
 }
 
 // [Best]  Time O(N·L·26), far fewer nodes  ·  Space O(N)
+//   Intuition: BFS from both ends at once and always expand the smaller frontier. The search space
+//   grows much more slowly because two small circles meet before one big circle would.
+//   Remember: Two BFS frontiers meet in the middle.
 //   1. two frontiers (from begin and from end); always expand the smaller one
 //   2. a neighbour found in the other frontier → they met
 namespace lc127_best {
@@ -3022,6 +3354,9 @@ int ladderLength(string begin, string end, vector<string>& words) {
 // Story: Bellman-Ford with a stop budget: run exactly k + 1 rounds of "relax every route", reading only LAST round's prices so no route sneaks in two hops in one round.
 
 // [Bellman-Ford (k+1 rounds)]  Time O(k·E)  ·  Space O(n)
+//   Intuition: Round i of Bellman-Ford finds the cheapest prices using at most i flights. Run k + 1
+//   rounds, and read only the previous round's prices so no round uses two flights.
+//   Remember: k + 1 rounds, read from last round's copy.
 //   1. d = ∞, d[src] = 0
 //   2. k+1 times: nd = copy of d; relax every flight using d; d = nd
 namespace lc787_bellman_ford_k_1_rounds {
@@ -3041,6 +3376,10 @@ int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int
 }
 
 // [Dijkstra with stops]  Time O(E·k log(E·k))  ·  Space O(E·k)
+//   Intuition: Dijkstra by cost, but the state includes how many flights were used. A cheaper path
+//   that uses too many flights is skipped, and a city is revisited only if reached with fewer
+//   flights.
+//   Remember: Cheapest first, but track flights used.
 //   1. heap of (cost, node, edgesUsed); first pop of dst = cheapest
 //   2. skip if edgesUsed > k or we already reached node with fewer edges
 namespace lc787_dijkstra_with_stops {
@@ -3071,6 +3410,9 @@ int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int
 // Story: At every item you reach a fork: TAKE it or SKIP it. n forks → 2ⁿ leaves → 2ⁿ subsets. Or think of n light switches and count in binary.
 
 // [Backtracking]  Time O(n·2ⁿ)  ·  Space O(n)
+//   Intuition: Each element is either in the subset or not. Branch on take / skip for every element;
+//   the leaves of that tree are all 2ⁿ subsets.
+//   Remember: Take it or skip it.
 //   1. bt(i): at the end, save cur
 //   2. take nums[i] → bt(i+1) → undo; skip → bt(i+1)
 namespace lc78_backtracking {
@@ -3093,6 +3435,9 @@ vector<vector<int>> subsets(vector<int>& nums) {
 }
 
 // [Cascading]  Time O(n·2ⁿ)  ·  Space O(1) extra
+//   Intuition: Every subset of the first i + 1 numbers is a subset of the first i numbers, with or
+//   without the new number. So copy what you have and add the new number to each copy.
+//   Remember: Copy every subset and add x.
 //   1. start with {{}}; for each x, copy every existing subset and add x
 namespace lc78_cascading {
 vector<vector<int>> subsets(vector<int>& nums) {
@@ -3110,6 +3455,8 @@ vector<vector<int>> subsets(vector<int>& nums) {
 }
 
 // [Bitmask]  Time O(n·2ⁿ)  ·  Space O(1) extra
+//   Intuition: Number the subsets 0 … 2ⁿ − 1. Bit i of the number says whether nums[i] is included.
+//   Remember: Bit i on → take nums[i].
 //   1. mask from 0 to 2ⁿ−1; bit i set → include nums[i]
 namespace lc78_bitmask {
 vector<vector<int>> subsets(vector<int>& nums) {
@@ -3129,6 +3476,9 @@ vector<vector<int>> subsets(vector<int>& nums) {
 // Story: Musical chairs: try every person in chair 1, then solve the remaining chairs. Swap someone in, recurse, swap them back.
 
 // [used[] array]  Time O(n·n!)  ·  Space O(n)
+//   Intuition: Fill positions one by one; each position can take any number not yet used. A used[]
+//   array tracks that, and you undo after exploring.
+//   Remember: Pick unused, recurse, unpick.
 //   1. pick any unused element, mark used, recurse, unmark
 namespace lc46_used_array {
 void bt(vector<int>& nums, vector<bool>& used, vector<int>& cur, vector<vector<int>>& res) {
@@ -3153,6 +3503,9 @@ vector<vector<int>> permute(vector<int>& nums) {
 }
 
 // [In-place swaps]  Time O(n·n!)  ·  Space O(1) extra
+//   Intuition: Fill positions one by one; each position can take any number not yet used. A used[]
+//   array tracks that, and you undo after exploring.
+//   Remember: Pick unused, recurse, unpick.
 //   1. position i: swap each j ≥ i into i, recurse on i+1, swap back
 namespace lc46_in_place_swaps {
 void bt(int i, vector<int>& nums, vector<vector<int>>& res) {
@@ -3177,6 +3530,9 @@ vector<vector<int>> permute(vector<int>& nums) {
 // Story: A coin jar you may reuse: at each coin either use it AGAIN (stay on the same index) or move on to the next coin. Stop as soon as you overshoot.
 
 // [Backtracking]  Time O(2^(t/min))  ·  Space O(t/min)
+//   Intuition: Stay on the same index to allow reusing a coin, and only move forward to avoid the
+//   same combination in a different order.
+//   Remember: Recurse with i (reuse), never go back.
 //   1. bt(start, remaining): loop i from start
 //   2. choose c[i] → bt(i, rem − c[i]) (same i = reuse) → undo
 namespace lc39_backtracking {
@@ -3202,6 +3558,9 @@ vector<vector<int>> combinationSum(vector<int>& c, int target) {
 }
 
 // [Sorted + pruning]  Time same worst case, much faster  ·  Space O(t/min)
+//   Intuition: Sorted coins let you stop early: once a coin is bigger than what remains, every later
+//   coin is too.
+//   Remember: Sorted → break on the first coin that overshoots.
 //   1. sort first; break the loop as soon as c[i] > remaining
 namespace lc39_sorted_pruning {
 void bt(int start, int rem, vector<int>& c, vector<int>& cur, vector<vector<int>>& res) {
@@ -3229,6 +3588,9 @@ vector<vector<int>> combinationSum(vector<int>& c, int target) {
 // Story: An explorer in a maze with chalk: mark the cell (#) when you step in, try all 4 directions, and wipe the chalk when you back out.
 
 // [Backtracking DFS]  Time O(m·n·3^L)  ·  Space O(L)
+//   Intuition: Try every cell as a start. Mark a cell while it is on the current path so it is not
+//   reused, and unmark it when you back out so other paths can use it.
+//   Remember: Mark, explore 4 ways, unmark.
 //   1. from every cell: dfs(i, r, c) matches w[i]
 //   2. mark, explore 4 neighbours for w[i+1], unmark
 namespace lc79_backtracking_dfs {
@@ -3252,6 +3614,9 @@ bool exist(vector<vector<char>>& b, string w) {
 }
 
 // [Pruned]  Time same worst case, faster in practice  ·  Space O(L)
+//   Intuition: Quick checks cut the search: if the board lacks enough of some letter, stop at once;
+//   and starting from the rarer end of the word creates fewer false starts.
+//   Remember: Count check first, start from the rarer end.
 //   1. board lacks enough of some letter → false immediately
 //   2. start from the rarer end of the word (reverse it if needed)
 namespace lc79_pruned {
@@ -3296,6 +3661,9 @@ int climbStairs(int n) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: The last move to step n was either 1 or 2 steps, so ways(n) = ways(n − 1) + ways(n −
+//   2). Store each value once instead of recomputing it.
+//   Remember: ways(n) = ways(n − 1) + ways(n − 2).
 //   1. table dp[i] = dp[i−1] + dp[i−2]
 namespace lc70_optimised {
 int climbStairs(int n) {
@@ -3309,6 +3677,8 @@ int climbStairs(int n) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Each value only depends on the two before it, so two variables are enough.
+//   Remember: Keep only the last two.
 //   1. keep only the last two values
 namespace lc70_best {
 int climbStairs(int n) {
@@ -3340,6 +3710,9 @@ int rob(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n)  ·  Space O(n)
+//   Intuition: At each house you either skip it (best so far stays) or rob it (its money + best from
+//   two houses back). Store the best for every prefix.
+//   Remember: best[i] = max(skip, rob + best[i − 2]).
 //   1. dp[i+2] = max(dp[i+1], dp[i] + nums[i])
 namespace lc198_optimised {
 int rob(vector<int>& nums) {
@@ -3352,6 +3725,8 @@ int rob(vector<int>& nums) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Only the last two best values are needed, so roll them forward in two variables.
+//   Remember: Two rolling variables.
 //   1. two rolling variables prev2, prev1
 namespace lc198_best {
 int rob(vector<int>& nums) {
@@ -3387,6 +3762,9 @@ int coinChange(vector<int>& coins, int amount) {
 }
 
 // [Optimised]  Time O(amount·coins)  ·  Space O(amount)
+//   Intuition: The fewest coins for an amount depends on the fewest coins for (amount − coin). The
+//   plain recursion solves the same amounts many times; a memo stores each once.
+//   Remember: Memoise f(amount) = 1 + min f(amount − coin).
 //   1. same recursion + memo[amount]
 namespace lc322_optimised {
 int go(vector<int>& c, int amt, vector<int>& memo) {
@@ -3407,6 +3785,9 @@ int coinChange(vector<int>& coins, int amount) {
 }
 
 // [Best]  Time O(amount·coins)  ·  Space O(amount)
+//   Intuition: Fill answers from 0 up to the target, so every smaller amount is ready when you need
+//   it.
+//   Remember: dp[a] = 1 + min(dp[a − coin]), bottom-up.
 //   1. bottom-up: dp[0] = 0, dp[a] = min(dp[a − c] + 1)
 //   2. dp[amount] still "infinite" → −1
 namespace lc322_best {
@@ -3440,6 +3821,9 @@ int lengthOfLIS(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n²)  ·  Space O(n)
+//   Intuition: The longest increasing run ending at i extends the best run ending at some earlier
+//   smaller number.
+//   Remember: dp[i] = 1 + max dp[j] with nums[j] < nums[i].
 //   1. dp[i] = 1 + max dp[j] over j < i with nums[j] < nums[i]
 namespace lc300_optimised {
 int lengthOfLIS(vector<int>& nums) {
@@ -3455,6 +3839,10 @@ int lengthOfLIS(vector<int>& nums) {
 }
 
 // [Best]  Time O(n log n)  ·  Space O(n)
+//   Intuition: For every length keep the smallest possible ending value. A smaller ending is always
+//   better because it leaves more room to extend. Each new number replaces the first ending ≥ it
+//   (binary search) or extends the list.
+//   Remember: Patience piles: lower_bound and replace.
 //   1. tails[k] = smallest tail of any increasing run of length k+1
 //   2. lower_bound x: replace it, or append if x is the biggest
 namespace lc300_best {
@@ -3487,6 +3875,10 @@ int longestCommonSubsequence(string a, string b) {
 }
 
 // [Optimised]  Time O(n·m)  ·  Space O(n·m)
+//   Intuition: If the last letters match, they are part of the LCS: 1 + LCS of both prefixes.
+//   Otherwise drop the last letter of one string and take the better result. A 2-D table stores each
+//   prefix pair once.
+//   Remember: Match → diagonal + 1, else max(up, left).
 //   1. dp[i][j] = match ? dp[i−1][j−1] + 1 : max(dp[i−1][j], dp[i][j−1])
 namespace lc1143_optimised {
 int longestCommonSubsequence(string a, string b) {
@@ -3502,6 +3894,9 @@ int longestCommonSubsequence(string a, string b) {
 }
 
 // [Best]  Time O(n·m)  ·  Space O(m)
+//   Intuition: Each row only reads the row above, so keep one row and remember the old diagonal
+//   value in a variable.
+//   Remember: One row + a diag variable.
 //   1. one row; keep the old diagonal in a variable
 namespace lc1143_best {
 int longestCommonSubsequence(string a, string b) {
@@ -3539,6 +3934,9 @@ bool wordBreak(string s, vector<string>& dict) {
 }
 
 // [Optimised]  Time O(n³)  ·  Space O(n)
+//   Intuition: The first i letters can be split if some earlier split point j works and s[j..i) is a
+//   word. Store this for every prefix instead of re-solving suffixes.
+//   Remember: dp[i] = some dp[j] && s[j..i) is a word.
 //   1. dp[0] = true; dp[i] = any j < i with dp[j] && s[j..i) in dict
 namespace lc139_optimised {
 bool wordBreak(string s, vector<string>& dict) {
@@ -3555,6 +3953,9 @@ bool wordBreak(string s, vector<string>& dict) {
 }
 
 // [Best]  Time O(n·L²)  ·  Space O(n)
+//   Intuition: The last word cannot be longer than the longest dictionary word, so only check split
+//   points within that distance.
+//   Remember: Only look back L letters.
 //   1. same DP, but only look back up to the longest word length L
 namespace lc139_best {
 bool wordBreak(string s, vector<string>& dict) {
@@ -3591,6 +3992,9 @@ int minDistance(string a, string b) {
 }
 
 // [Optimised]  Time O(n·m)  ·  Space O(n·m)
+//   Intuition: To turn a prefix of word1 into a prefix of word2, the last move was an insert, delete
+//   or replace (free if the letters match). Each prefix pair is stored once in a table.
+//   Remember: Same letter → diagonal; else 1 + min(up, left, diagonal).
 //   1. dp[i][0] = i, dp[0][j] = j
 //   2. dp[i][j] = match ? diag : 1 + min(up, left, diag)
 namespace lc72_optimised {
@@ -3610,6 +4014,8 @@ int minDistance(string a, string b) {
 }
 
 // [Best]  Time O(n·m)  ·  Space O(m)
+//   Intuition: Each row only needs the row above, so keep one row and the old diagonal value.
+//   Remember: One row + a diag variable.
 //   1. one row + a diag variable
 namespace lc72_best {
 int minDistance(string a, string b) {
@@ -3649,6 +4055,9 @@ bool canPartition(vector<int>& nums) {
 }
 
 // [Optimised]  Time O(n·sum)  ·  Space O(sum)
+//   Intuition: You need a subset summing to half the total. dp[j] says whether sum j is reachable;
+//   adding a number x makes j reachable if j − x was. Loop j downward so each number is used once.
+//   Remember: Reachable sums, loop downward.
 //   1. dp[j] = can make sum j; loop j downward so each item is used once
 namespace lc416_optimised {
 bool canPartition(vector<int>& nums) {
@@ -3665,6 +4074,9 @@ bool canPartition(vector<int>& nums) {
 }
 
 // [Best]  Time O(n·sum/64)  ·  Space O(sum)
+//   Intuition: A bitset stores all reachable sums as bits. Shifting left by x adds x to every
+//   reachable sum at once, 64 sums per operation.
+//   Remember: bits |= bits << x.
 //   1. bitset b, b[0] = 1; for each x: b |= b << x
 namespace lc416_best {
 bool canPartition(vector<int>& nums) {
@@ -3700,6 +4112,9 @@ bool canJump(vector<int>& nums) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: You do not need to know how you reach an index, only how far you can reach. Track the
+//   farthest reachable index; if you ever stand beyond it, you are stuck.
+//   Remember: Track the farthest reach.
 //   1. far = max(far, i + nums[i]); i > far → false
 namespace lc55_best {
 bool canJump(vector<int>& nums) {
@@ -3731,6 +4146,10 @@ int jump(vector<int>& nums) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: Think of BFS levels: all indices reachable with j jumps form a range. When you walk
+//   past the end of the current range you must take another jump, and the new range ends at the
+//   farthest reach seen.
+//   Remember: End of the current range → jumps++.
 //   1. far = farthest reach; at i == end of current level → jumps++, end = far
 namespace lc45_best {
 int jump(vector<int>& nums) {
@@ -3768,6 +4187,10 @@ int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
 }
 
 // [Best]  Time O(n)  ·  Space O(1)
+//   Intuition: If the total gas is at least the total cost, some start works. If the tank goes
+//   negative at station i, no station between the current start and i can be the start, so restart
+//   from i + 1.
+//   Remember: Tank negative → restart after this station.
 //   1. total += diff; tank += diff
 //   2. tank < 0 → start = i + 1, tank = 0; total < 0 → −1
 namespace lc134_best {
@@ -3811,6 +4234,9 @@ public:
 }
 
 // [Best]  Time O(L) per op  ·  Space O(total letters · 26)
+//   Intuition: Words that share a prefix share a path from the root, one letter per edge. Lookups
+//   take O(word length) no matter how many words are stored; a flag marks where a word ends.
+//   Remember: Shared prefix = shared path; flag = word ends.
 //   1. node = 26 child pointers + end flag
 //   2. insert creates missing children; search needs end flag; startsWith just needs the path
 namespace lc208_best {

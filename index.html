@@ -163,6 +163,11 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .chev { flex: none; align-self: center; color: var(--muted); font-family: var(--f-mono); font-size: 14px; }
 
 .panel ol { margin: 0 0 10px; padding-left: 22px; font-size: 15px; }
+.intu { margin: 0 0 12px; padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 10%, var(--card)); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.intu-tag { display: inline-block; font: 700 11px/1 var(--f-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--card); background: var(--accent); border-radius: 4px; padding: 3px 6px; margin-bottom: 6px; }
+.intu p { margin: 0; font-size: 15px; line-height: 1.55; max-width: 72ch; }
+.intu .remember { margin-top: 8px; font-family: var(--f-hand); font-size: 21px; line-height: 1.25; color: var(--accent); font-weight: 700; }
+.intu .remember b { font-family: var(--f-body); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink); margin-right: 4px; }
 .panel ol li::marker { font-family: var(--f-mono); color: var(--muted); font-size: 13px; }
 .panel ol code, .pat-notes code { font-family: var(--f-mono); font-size: 0.9em; }
 .codebox { background: var(--code-bg); border-radius: 10px; overflow: hidden; }
@@ -286,6 +291,7 @@ footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
 
 <script src="viz.js"></script>
 <script src="viz-x.js"></script>
+<script src="intuition.js"></script>
 <script>
 (function () {
   // keep --tools-h equal to the sticky search bar's height so the sidebar and anchors sit right below it
@@ -617,7 +623,9 @@ n->end = true;` }
 
   function solPanel(p, i) {
     const s = p.sols[i];
-    return `<ol>${s.steps.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
+    const it = ((window.VIZ && VIZ.INTU) || {})[p.id], intu = it && it[i];
+    const box = intu ? `<div class="intu"><span class="intu-tag">Intuition</span><p>${esc(intu[0])}</p><p class="remember"><b>Remember:</b> ${esc(intu[1])}</p></div>` : '';
+    return `${box}<ol>${s.steps.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
       <div class="codebox"><div class="codebar"><span class="cx">Time <b>${esc(s.time)}</b> · Space <b>${esc(s.space)}</b></span>
       <button class="copy" type="button" data-q="${p.id}" data-i="${i}">Copy C++</button></div>
       <pre><code>${hl(s.code)}</code></pre></div>`;
