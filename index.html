@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSA Memory Atlas</title>
+<meta name="description" content="80 DSA interview problems in 15 patterns, each with a picture to remember, a one-line story and commented C++ solutions from naive to best.">
+<meta name="author" content="Manas Raj">
+<meta property="og:title" content="DSA Memory Atlas: 80 problems, drawn">
+<meta property="og:description" content="80 interview problems, 15 patterns, 195 commented C++ solutions with step-by-step diagrams.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0f151c">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a study notebook on graph paper. Each pattern = one hand-drawn sketch + template, followed by its problem cards. */
+:root {
+  --paper: #f3f4ee;
+  --card: #fcfcf9;
+  --ink: #1c2a39;
+  --muted: #5b6876;
+  --line: #dde1d5;
+  --hi: #ffe46b;
+  --accent: #0b7f73;
+  --slow: #cf4b43;
+  --mid: #c98a00;
+  --fast: #138a62;
+  --code-bg: #121a23;
+  --code-ink: #e3eaf1;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --f-hand: "Caveat", "Comic Sans MS", cursive;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f151c; --card: #161f29; --ink: #e6ecf2; --muted: #9aa8b6; --line: #253140;
+    --hi: #d9b92f; --accent: #46c2b2; --slow: #ff7d74; --mid: #f0c04a; --fast: #4fd68b;
+    --code-bg: #0a1017; --code-ink: #e3eaf1; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f151c; --card: #161f29; --ink: #e6ecf2; --muted: #9aa8b6; --line: #253140;
+  --hi: #d9b92f; --accent: #46c2b2; --slow: #ff7d74; --mid: #f0c04a; --fast: #4fd68b;
+  --code-bg: #0a1017; --code-ink: #e3eaf1; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 16px/1.55 var(--f-body);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px; background-attachment: fixed;
+}
+a { color: var(--accent); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+
+/* Header */
+.top { padding: 32px 0 18px; }
+.top h1 { font-size: clamp(34px, 7vw, 56px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.02; }
+.top h1 .scribble { font-family: var(--f-hand); font-weight: 700; color: var(--accent); font-size: 0.62em; letter-spacing: 0; display: inline-block; transform: rotate(-3deg); margin-left: 6px; }
+.lede { max-width: 62ch; color: var(--muted); margin: 12px 0 16px; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.stat b { font-family: var(--f-mono); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; font-size: 14px; color: var(--muted); }
+.legend .lad { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.slow { background: var(--slow); } .dot.mid { background: var(--mid); } .dot.fast { background: var(--fast); }
+.tip { margin-top: 14px; background: var(--card); border: 1.5px dashed var(--ink); border-radius: 12px; padding: 10px 14px; font-size: 15px; max-width: 70ch; }
+.tip strong { font-family: var(--f-hand); font-size: 22px; color: var(--accent); font-weight: 700; margin-right: 4px; }
+
+/* Sticky tools */
+.tools { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+.tools .wrap { display: grid; gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row.scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.row.scroll::-webkit-scrollbar { display: none; }
+input[type="search"] { flex: 1; min-width: 0; font: inherit; font-size: 15px; color: var(--ink); background: var(--card); border: 1.5px solid var(--ink); border-radius: 10px; padding: 8px 12px; }
+.progress { font-size: 13px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chip { flex: none; font: 500 13px/1 var(--f-body); color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.chip.pat { font-family: var(--f-mono); font-size: 12px; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Pattern section */
+.pattern { padding: 34px 0 8px; scroll-margin-top: 120px; }
+.pat-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.pat-no { font-family: var(--f-mono); font-size: 14px; color: var(--paper); background: var(--ink); border-radius: 6px; padding: 2px 8px; }
+.pat-head h2 { font-size: clamp(24px, 4.6vw, 34px); font-weight: 800; letter-spacing: -0.01em; }
+.pat-head .count { color: var(--muted); font-size: 14px; }
+.pat-body { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; padding: 16px; box-shadow: 4px 4px 0 var(--ink); }
+@media (max-width: 760px) { .pat-body { grid-template-columns: minmax(0, 1fr); } }
+.pat-body > *, .card, .panel, .codebox { min-width: 0; }
+.sketch { margin: 0; }
+.sketch svg { width: 100%; height: auto; display: block; }
+.mantra { font-family: var(--f-hand); font-size: 26px; line-height: 1.15; margin: 0 0 10px; color: var(--accent); font-weight: 700; }
+.pat-notes h4 { margin: 8px 0 4px; font: 600 12px/1.2 var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.pat-notes ul { margin: 0 0 8px; padding-left: 18px; }
+.pat-notes li { margin: 2px 0; }
+.tpl { margin-top: 8px; }
+
+/* Cards */
+.cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--ink); border-radius: 12px; padding: 14px 14px 12px; scroll-margin-top: 120px; }
+.card.revised { border-left-color: var(--fast); }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.qno { font-family: var(--f-mono); font-weight: 600; font-size: 13px; color: var(--muted); }
+.card h3 { font-size: 20px; font-weight: 600; flex: 1 1 220px; min-width: 0; }
+.card h3 a { color: inherit; text-decoration: none; }
+.pill { font: 600 11px/1 var(--f-body); letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 4px 8px; border: 1px solid currentColor; white-space: nowrap; }
+.pill.Easy { color: var(--fast); } .pill.Medium { color: var(--mid); } .pill.Hard { color: var(--slow); }
+.pill.blitz { background: var(--hi); color: #1c2a39; border-color: #1c2a39; }
+.pill.logistics { color: var(--accent); }
+.lc { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.desc { margin: 8px 0 0; font-size: 15px; color: var(--ink); max-width: 68ch; }
+.desc .ex { display: block; margin-top: 4px; font: 500 12.5px/1.5 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+.desc .ex b { font-weight: 600; color: var(--accent); margin-right: 4px; }
+.hook { margin: 10px 0 12px; font-size: 15.5px; }
+.hook mark { background: linear-gradient(transparent 55%, color-mix(in srgb, var(--hi) 75%, transparent) 55%); color: inherit; padding: 0 1px; }
+.hook .story { font-family: var(--f-hand); font-size: 20px; font-weight: 700; color: var(--accent); margin-right: 4px; }
+
+/* Ladder = complexity diagram + tabs */
+.ladder { display: flex; align-items: stretch; gap: 4px; margin-bottom: 10px; }
+.rung { flex: 1 1 0; min-width: 0; text-align: left; font: inherit; color: var(--ink); background: transparent; border: 1.5px solid var(--line); border-radius: 10px; padding: 7px 9px 8px; cursor: pointer; position: relative; }
+.rung::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; border-radius: 9px 9px 0 0; background: var(--lvl); }
+.rung.slow { --lvl: var(--slow); } .rung.mid { --lvl: var(--mid); } .rung.fast { --lvl: var(--fast); } .rung.neutral { --lvl: var(--accent); }
+.rung .lab { display: block; font: 600 12px/1.25 var(--f-body); margin-top: 3px; }
+.rung .t { display: block; font: 500 12px/1.3 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+.rung[aria-pressed="true"] { border-color: var(--lvl); background: color-mix(in srgb, var(--lvl) 12%, transparent); }
+.rung[aria-pressed="true"] .t { color: var(--ink); }
+.chev { flex: none; align-self: center; color: var(--muted); font-family: var(--f-mono); font-size: 14px; }
+
+.panel ol { margin: 0 0 10px; padding-left: 22px; font-size: 15px; }
+.panel ol li::marker { font-family: var(--f-mono); color: var(--muted); font-size: 13px; }
+.panel ol code, .pat-notes code { font-family: var(--f-mono); font-size: 0.9em; }
+.codebox { background: var(--code-bg); border-radius: 10px; overflow: hidden; }
+.codebar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid #22303e; font: 500 12px/1.3 var(--f-mono); color: #9fb0c1; }
+.codebar .cx b { color: #e3eaf1; font-weight: 600; }
+.copy { font: 600 12px/1 var(--f-body); color: #e3eaf1; background: #22303e; border: 1px solid #33475a; border-radius: 6px; padding: 6px 10px; cursor: pointer; flex: none; }
+pre { margin: 0; padding: 12px 14px; overflow-x: auto; font: 13px/1.55 var(--f-mono); color: var(--code-ink); tab-size: 4; }
+.k { color: #c79bff; } .ty { color: #6fd6c6; } .fn { color: #8fb4ff; } .n { color: #ffa476; } .s { color: #b9e27d; } .c { color: #6f8191; font-style: italic; }
+.card-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
+.rev { font: 500 13px/1 var(--f-body); color: var(--ink); background: transparent; border: 1.5px solid var(--ink); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+.rev[aria-pressed="true"] { background: var(--fast); border-color: var(--fast); color: #fff; }
+
+/* Per-problem picture of the optimised idea */
+.viz { margin: 0 0 12px; border: 1.5px dashed color-mix(in srgb, var(--ink) 35%, transparent); border-radius: 12px; padding: 10px 10px 8px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
+.viz figcaption { font-size: 14.5px; line-height: 1.45; margin-bottom: 6px; }
+.vz-tag { font: 700 11px/1 var(--f-body); letter-spacing: 0.06em; text-transform: uppercase; background: var(--accent); color: var(--card); border-radius: 4px; padding: 3px 6px; margin-right: 8px; vertical-align: 1px; }
+.viz svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+.vz-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 6px; }
+.vz-btn { font: 600 13px/1 var(--f-body); color: var(--ink); background: var(--card); border: 1.5px solid var(--ink); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+.vz-btn:disabled { opacity: 0.35; cursor: default; }
+.vz-count { font: 500 12px/1 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.viz .vc { fill: var(--card); stroke: var(--ink); stroke-width: 1.3; }
+.viz .v-y { fill: color-mix(in srgb, var(--hi) 75%, var(--card)); }
+.viz .v-g { fill: color-mix(in srgb, var(--fast) 35%, var(--card)); }
+.viz .v-r { fill: color-mix(in srgb, var(--slow) 30%, var(--card)); }
+.viz .v-b { fill: color-mix(in srgb, var(--accent) 28%, var(--card)); }
+.viz .v-m { opacity: 0.35; }
+.viz .vt { font-family: var(--f-mono); fill: var(--ink); text-anchor: middle; }
+.viz .vl { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+.viz .vi { font-family: var(--f-mono); font-size: 10px; fill: var(--muted); text-anchor: middle; }
+.viz .vp { font-family: var(--f-mono); font-size: 11px; font-weight: 600; fill: var(--accent); text-anchor: middle; }
+.viz .vw { fill: none; stroke: var(--accent); stroke-width: 2.4; }
+.viz .va { fill: none; stroke: var(--accent); stroke-width: 1.8; }
+.viz .vtl { font-family: var(--f-hand); font-size: 16px; font-weight: 700; fill: var(--accent); text-anchor: middle; }
+.viz .vw8 { font-family: var(--f-mono); font-size: 10px; fill: var(--muted); text-anchor: middle; }
+.viz .vn { font-family: var(--f-hand); font-size: 18px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
+.viz .ve { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+.viz .ve-g { stroke: var(--fast); stroke-width: 2.6; }
+.viz .ve-r { stroke: var(--slow); stroke-width: 2.2; }
+.viz .ve-m { opacity: 0.3; }
+.viz .vwater { fill: color-mix(in srgb, var(--accent) 45%, transparent); }
+.viz .vrect { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 2; }
+.viz .vmk-a { fill: var(--accent); } .viz .vmk-k { fill: var(--ink); }
+
+.empty, .err { padding: 30px 0; color: var(--muted); }
+footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
+
+/* SVG sketch styles */
+.sk .box { fill: var(--card); stroke: var(--ink); stroke-width: 1.6; }
+.sk .box-hi { fill: var(--hi); stroke: var(--ink); stroke-width: 1.6; }
+.sk .box-acc { fill: none; stroke: var(--accent); stroke-width: 2.6; }
+.sk .ln { stroke: var(--ink); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sk .arr { stroke: var(--ink); stroke-width: 1.8; fill: none; stroke-linecap: round; }
+.sk .arr-acc { stroke: var(--accent); stroke-width: 2.4; fill: none; stroke-linecap: round; }
+.sk .thick { stroke-width: 4; }
+.sk .dash { stroke-dasharray: 5 5; }
+.sk .mute { opacity: 0.35; }
+.sk .hand { font-family: var(--f-hand); fill: var(--ink); font-weight: 700; }
+.sk .hand.acc { fill: var(--accent); }
+.sk .lbl { font-family: var(--f-mono); fill: var(--ink); }
+.sk .lbl.dim { fill: var(--muted); }
+.sk .fig circle { fill: var(--card); stroke: var(--ink); stroke-width: 1.8; }
+.sk .fig path { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; }
+.sk .fig.acc circle, .sk .fig.acc path { stroke: var(--accent); }
+.sk .node { fill: var(--card); stroke: var(--ink); stroke-width: 1.6; }
+.sk .node-hi { fill: var(--hi); stroke: var(--ink); stroke-width: 1.6; }
+.sk .flag { fill: var(--accent); }
+.sk .mk-ink { fill: var(--ink); } .sk .mk-acc { fill: var(--accent); }
+.sk .bubble { fill: var(--card); stroke: var(--ink); stroke-width: 1.4; }
+@media (prefers-reduced-motion: no-preference) { .card { transition: border-color .2s; } }
+</style>
+</head>
+<body>
+<header class="top wrap">
+  <h1>DSA Memory Atlas <span class="scribble">80 problems, drawn</span></h1>
+  <p class="lede">80 interview problems grouped into 15 patterns. Each pattern gets one picture to remember. Each problem gets a one-line story and two or three C++ solutions, from naive to best, with the steps written out first.</p>
+  <div class="stats">
+    <span class="stat"><b>80</b> problems</span>
+    <span class="stat"><b>195</b> C++ solutions</span>
+    <span class="stat"><b>600</b> test checks passed with g++ (C++17)</span>
+  </div>
+  <div class="legend">
+    <span class="lad"><span class="dot slow"></span>Naive</span>
+    <span class="lad"><span class="dot mid"></span>Optimised</span>
+    <span class="lad"><span class="dot fast"></span>Best</span>
+    <span>Every card opens with the problem, then a step-by-step picture. Tap a ladder step (Naive, Optimised, Best) and both the picture and the code switch to that solution.</span>
+  </div>
+  <p class="tip"><strong>Before the round:</strong> look at the 15 pictures, then open the <em>Asked at Blitz</em> filter. Read each story out loud, then write the Best code from memory. Picture yaad rahegi, code apne aap aayega.</p>
+</header>
+
+<div class="tools">
+  <div class="wrap">
+    <div class="row">
+      <input id="q" type="search" placeholder="Search a problem, LC number or idea (e.g. 739, heap, window)" aria-label="Search problems">
+      <span class="progress" id="prog">0 / 80 revised</span>
+    </div>
+    <div class="row scroll" id="filters" role="group" aria-label="Filters"></div>
+    <div class="row scroll" id="jump" aria-label="Jump to pattern"></div>
+  </div>
+</div>
+
+<main class="wrap" id="atlas"><p class="empty">Loading the atlas…</p></main>
+<footer class="wrap">
+  <p>Every solution was compiled with g++ in C++17 and run against LeetCode's sample cases plus edge cases. Signatures match LeetCode, so you can paste any solution straight into the editor.</p>
+  <p><a href="dsa_80_solutions_commented.cpp" download>Download all 195 solutions (.cpp)</a> · <a href="https://github.com/Manasdangi/dsa-memory-atlas">Source on GitHub</a> · Made by <a href="https://manasraj.online/">Manas Raj</a> · <a href="https://topmate.io/manas_raj_mnit">1:1 interview prep on Topmate</a></p>
+</footer>
+
+<script src="viz.js"></script>
+<script src="viz-x.js"></script>
+<script>
+(function () {
+  // ---------- tiny SVG drawing kit ----------
+  const H = (x, y, t, cls = '', sz = 18, a = 'start') => `<text x="${x}" y="${y}" class="hand ${cls}" font-size="${sz}" text-anchor="${a}">${t}</text>`;
+  const T = (x, y, t, cls = '', sz = 13, a = 'middle') => `<text x="${x}" y="${y}" class="lbl ${cls}" font-size="${sz}" text-anchor="${a}">${t}</text>`;
+  const R = (x, y, w, h, cls = 'box', rx = 6) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" class="${cls}"/>`;
+  const Ln = (x1, y1, x2, y2, cls = 'ln') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}"/>`;
+  const C = (x, y, r, cls = 'node') => `<circle cx="${x}" cy="${y}" r="${r}" class="${cls}"/>`;
+  const A = (d, cls = 'arr', m = 'ah') => `<path d="${d}" class="${cls}" marker-end="url(#${m})"/>`;
+  const P = (x, y, cls = 'fig') => `<g class="${cls}"><circle cx="${x}" cy="${y}" r="7"/><path d="M${x} ${y + 7}v18M${x - 9} ${y + 14}h18M${x} ${y + 25}l-8 12M${x} ${y + 25}l8 12"/></g>`;
+  const Pl = (pts, cls = 'ln') => `<polyline points="${pts.map(p => p.join(',')).join(' ')}" class="${cls}"/>`;
+  const Flag = (x, y) => `<path d="M${x} ${y}v-16" class="ln"/><path d="M${x} ${y - 16}l12 4l-12 4z" class="flag"/>`;
+  const svg = (key, label, inner) => `<svg class="sk" viewBox="0 0 360 210" role="img" aria-label="${label}">
+    <defs>
+      <marker id="ah-${key}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk-ink"/></marker>
+      <marker id="aa-${key}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk-acc"/></marker>
+    </defs>${inner.replaceAll('url(#ah)', `url(#ah-${key})`).replaceAll('url(#aa)', `url(#aa-${key})`)}</svg>`;
+  const range = n => [...Array(n).keys()];
+
+  const DRAW = {
+    hash: () => {
+      let s = H(14, 26, 'a locker room = hash map', '', 21);
+      [2, 7, 11, 15].forEach((v, i) => {
+        const x = 150 + i * 50, y = 48;
+        s += R(x, y, 42, 104, i === 0 ? 'box-hi' : 'box', 4) + Ln(x + 9, y + 14, x + 33, y + 14) + Ln(x + 9, y + 21, x + 33, y + 21);
+        s += C(x + 34, y + 58, 2.5, 'node') + T(x + 21, y + 92, v, '', 16) + T(x + 21, y + 170, `[${i}]`, 'dim', 11);
+      });
+      s += R(14, 40, 118, 38, 'bubble', 12) + H(73, 64, 'is 9 − 7 = 2 here?', '', 17, 'middle') + Ln(60, 78, 64, 88);
+      s += P(64, 102) + T(64, 160, 'x = 7', '', 12);
+      s += A('M86 124 C120 150 140 152 166 128', 'arr-acc', 'aa');
+      s += H(180, 200, 'walk straight to the locker: O(1)', 'acc', 18, 'middle');
+      return svg('hash', 'A person asks the locker room whether their partner number is inside; the hash map answers instantly.', s);
+    },
+    prefix: () => {
+      let s = H(14, 26, 'a running bank balance', '', 21);
+      s += Ln(20, 128, 340, 128, 'ln dash mute') + T(344, 132, '0', 'dim', 11, 'start');
+      const pts = [[20, 128], [50, 108], [80, 122], [110, 150], [140, 116], [170, 94], [200, 102], [230, 76], [260, 84], [290, 64], [320, 100]];
+      s += Pl(pts);
+      s += Pl(pts.slice(4, 10), 'arr-acc thick');
+      s += Ln(110, 56, 110, 172, 'ln dash') + H(116, 172, 'below 0: tear up, restart', '', 16);
+      s += H(212, 52, 'best stretch', 'acc', 19, 'middle');
+      s += H(180, 202, 'sum(i..j) = P[j] − P[i−1]', '', 18, 'middle');
+      return svg('prefix', 'A running balance line dips below zero and restarts; the best stretch is highlighted.', s);
+    },
+    twoptr: () => {
+      let s = H(14, 26, 'two friends on a bridge', '', 21);
+      [1, 3, 4, 6, 8, 10, 13].forEach((v, i) => { s += R(40 + i * 40, 110, 40, 36, 'box', 3) + T(60 + i * 40, 134, v, '', 15); });
+      s += H(60, 48, 'L', 'acc', 22, 'middle') + P(60, 62, 'fig acc') + H(300, 48, 'R', 'acc', 22, 'middle') + P(300, 62, 'fig acc');
+      s += A('M80 88H124', 'arr-acc', 'aa') + A('M280 88H236', 'arr-acc', 'aa');
+      s += H(180, 178, 'sum too big → R steps in', '', 18, 'middle') + H(180, 200, 'sum too small → L steps in', '', 18, 'middle');
+      return svg('twoptr', 'Two people stand at both ends of a sorted array and walk toward each other.', s);
+    },
+    window: () => {
+      let s = H(14, 26, 'a window on a moving train', '', 21);
+      'abcabcbb'.split('').forEach((ch, i) => { s += R(28 + i * 38, 86, 38, 38, 'box', 3) + T(47 + i * 38, 111, ch, '', 16); });
+      const fx = 62, fw = 122;
+      s += R(fx, 78, fw, 54, 'box-acc', 12) + C(fx + 22, 142, 7, 'node') + C(fx + fw - 22, 142, 7, 'node');
+      s += A(`M${fx + fw + 4} 66h32`, 'arr-acc', 'aa') + H(fx + fw + 8, 58, 'expand', 'acc', 18);
+      s += A(`M${fx - 2} 66h30`, 'arr', 'ah') + H(fx - 6, 58, 'shrink', '', 18, 'end');
+      s += H(180, 186, 'add on the right, evict on the left', '', 18, 'middle');
+      return svg('window', 'A train window frames a few letters; the right edge expands and the left edge shrinks.', s);
+    },
+    stack: () => {
+      let s = H(14, 26, 'a stack of plates', '', 21);
+      ['(', '{', '[', '('].forEach((ch, i) => { const y = 150 - i * 22; s += R(30, y, 110, 16, i === 3 ? 'box-hi' : 'box', 8) + T(85, y + 12, ch, '', 13); });
+      s += H(30, 70, 'only the TOP', '', 17) + A('M150 54C168 62 166 80 150 90', 'arr-acc', 'aa') + H(156, 50, '")" must match it', 'acc', 17);
+      s += R(214, 66, 18, 100, 'box', 2) + R(240, 126, 18, 40, 'box mute', 2) + R(266, 138, 18, 28, 'box mute', 2) + R(310, 82, 18, 84, 'box-hi', 2);
+      s += A('M306 112C292 104 284 110 278 124', 'arr-acc', 'aa') + H(296, 70, 'tall one pops', 'acc', 16, 'middle') + H(296, 86, 'the shorter', 'acc', 16, 'middle');
+      s += Ln(206, 166, 340, 166) + H(180, 198, 'monotonic stack = next greater element', '', 17, 'middle');
+      return svg('stack', 'Plates stacked with brackets; a closing bracket must match the top plate. A tall bar pops shorter bars.', s);
+    },
+    bsearch: () => {
+      let s = H(14, 26, 'tear the dictionary in half', '', 21);
+      s += R(30, 52, 300, 30, 'box', 4) + R(180, 52, 150, 30, 'box mute', 0) + Ln(180, 52, 330, 82, 'ln mute') + Ln(180, 82, 330, 52, 'ln mute');
+      s += Ln(180, 44, 180, 90, 'arr-acc') + T(30, 100, 'lo', 'dim', 12, 'start') + T(180, 100, 'mid', '', 12) + T(330, 100, 'hi', 'dim', 12, 'end') + H(255, 44, 'torn off', '', 17, 'middle');
+      range(7).forEach(i => { const ok = i >= 4, x = 62 + i * 34; s += R(x, 120, 30, 30, ok ? 'box-hi' : 'box', 4) + T(x + 15, 141, ok ? '✓' : '✗', '', 15); });
+      s += A('M213 184V156', 'arr-acc', 'aa') + H(213, 202, 'answer = first ✓ (search the answer)', 'acc', 17, 'middle');
+      return svg('bsearch', 'A bar is split at mid and one half crossed out; below, a strip of no-no-no-yes-yes shows binary search on the answer.', s);
+    },
+    list: () => {
+      let s = H(14, 26, 'flip the train couplings', '', 21);
+      range(4).forEach(i => { const x = 26 + i * 80; s += R(x, 44, 46, 30, 'box', 6) + T(x + 23, 64, i + 1, '', 14); if (i < 3) s += A(`M${x + 48} 59h28`); });
+      s += T(338, 64, '∅', 'dim', 14);
+      s += H(180, 106, 'nxt = cur→next, flip, step', 'acc', 18, 'middle');
+      range(4).forEach(i => { const x = 26 + i * 80; s += R(x, 124, 46, 30, i === 1 ? 'box-hi' : 'box', 6) + T(x + 23, 144, i + 1, '', 14); if (i > 0 && i < 3) s += A(`M${x - 2} 139h-28`, i === 2 ? 'arr-acc' : 'arr', i === 2 ? 'aa' : 'ah'); });
+      s += A('M184 139h28', 'arr mute') + H(49, 180, 'prev', '', 17, 'middle') + H(129, 180, 'prev', 'acc', 17, 'middle') + H(209, 180, 'cur', 'acc', 17, 'middle') + H(289, 180, 'nxt', '', 17, 'middle');
+      return svg('list', 'A row of linked boxes; underneath, the arrows are being flipped one at a time with prev, cur and next labels.', s);
+    },
+    tree: () => {
+      let s = H(14, 26, 'ask your children, then add yourself', '', 21);
+      const n = [[180, 58], [100, 112], [260, 112], [60, 168], [140, 168], [220, 168], [300, 168]];
+      [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6]].forEach(([a, b]) => { s += Ln(n[a][0], n[a][1], n[b][0], n[b][1]); });
+      n.forEach(([x, y], i) => { s += C(x, y, 14, i === 0 ? 'node-hi' : 'node'); });
+      [[3, 1], [4, 1], [5, 1], [6, 1]].forEach(([i, v]) => { s += H(n[i][0] + (i % 2 ? -16 : 10), n[i][1] - 22, '↑' + v, 'acc', 17); });
+      s += H(78, 92, '↑2', 'acc', 17) + H(270, 92, '↑2', 'acc', 17);
+      s += H(200, 52, '1 + max(2, 2) = 3', 'acc', 18);
+      return svg('tree', 'A binary tree where each child reports its height upward and the root adds one.', s);
+    },
+    heap: () => {
+      let s = H(14, 26, 'a VIP lounge with k seats', '', 21);
+      const n = [[110, 66, 4], [70, 116, 5], [150, 116, 7], [50, 166, 9], [90, 166, 8], [130, 166, 10]];
+      [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5]].forEach(([a, b]) => { s += Ln(n[a][0], n[a][1], n[b][0], n[b][1]); });
+      n.forEach(([x, y, v], i) => { s += C(x, y, 15, i === 0 ? 'node-hi' : 'node') + T(x, y + 5, v, '', 13); });
+      s += A('M126 56C170 34 206 36 232 52', 'arr-acc', 'aa') + H(236, 58, 'smallest out', 'acc', 17);
+      s += R(262, 82, 62, 92, 'box', 4) + Ln(293, 82, 293, 174) + P(236, 108) + H(293, 196, 'door: size k', '', 16, 'middle');
+      s += H(110, 200, 'min on top', '', 16, 'middle');
+      return svg('heap', 'A min-heap pyramid with the smallest guest on top being thrown out by a bouncer at a door of size k.', s);
+    },
+    interval: () => {
+      let s = H(14, 26, 'delivery slots on a timeline', '', 21);
+      s += Ln(20, 172, 340, 172);
+      range(11).forEach(t => { const x = 30 + t * 30; s += Ln(x, 168, x, 176) + T(x, 190, t, 'dim', 10); });
+      s += R(60, 54, 60, 16, 'box', 4) + R(90, 78, 120, 16, 'box', 4) + R(270, 102, 60, 16, 'box', 4);
+      s += T(90, 66, '1–3', '', 10) + T(150, 90, '2–6', '', 10) + T(300, 114, '8–10', '', 10);
+      s += A('M120 98V130', 'arr-acc', 'aa') + R(60, 136, 150, 18, 'box-hi', 4) + T(135, 149, '1–6', '', 11) + R(270, 136, 60, 18, 'box-hi', 4) + T(300, 149, '8–10', '', 11);
+      s += H(216, 66, 'overlap? stretch the end', 'acc', 18);
+      return svg('interval', 'Bars on a time axis; two overlapping slots merge into one longer highlighted slot.', s);
+    },
+    graph: () => {
+      let s = H(14, 26, 'ripples in a pond', '', 21);
+      const S = [118, 118];
+      s += C(S[0], S[1], 48, 'ln dash mute') + C(S[0], S[1], 88, 'ln dash mute');
+      const n = [S, [118, 70], [166, 118], [84, 152], [200, 74], [196, 162], [34, 112]];
+      [[0, 1], [0, 2], [0, 3], [1, 4], [2, 5], [3, 6], [2, 4]].forEach(([a, b]) => { s += Ln(n[a][0], n[a][1], n[b][0], n[b][1]); });
+      n.forEach(([x, y], i) => { s += C(x, y, 11, i === 0 ? 'node-hi' : 'node'); });
+      s += T(S[0], S[1] + 4, 'S', '', 12) + H(150, 74, '1', 'acc', 20) + H(206, 52, '2', 'acc', 20);
+      s += H(236, 112, 'fewest hops:', '', 17) + H(236, 132, 'BFS', 'acc', 22) + H(236, 162, 'cheapest path:', '', 17) + H(236, 182, 'Dijkstra', 'acc', 22);
+      return svg('graph', 'A source node with concentric dashed ripples reaching level 1 and level 2 neighbours.', s);
+    },
+    backtrack: () => {
+      let s = H(14, 26, 'take it or skip it, then undo', '', 21);
+      const b = (x, y, t, hi) => R(x - 26, y - 13, 52, 26, hi ? 'box-hi' : 'box', 8) + T(x, y + 5, t, '', 12);
+      s += Ln(160, 62, 90, 100) + Ln(160, 62, 230, 100) + Ln(90, 112, 50, 150) + Ln(90, 112, 130, 150) + Ln(230, 112, 190, 150) + Ln(230, 112, 270, 150);
+      s += b(160, 52, '{ }') + b(90, 106, '{1}') + b(230, 106, '{ }') + b(50, 160, '{1,2}', true) + b(130, 160, '{1}') + b(190, 160, '{2}') + b(270, 160, '{ }');
+      s += H(108, 80, 'take 1', 'acc', 16, 'end') + H(212, 80, 'skip 1', '', 16);
+      s += A('M22 150C6 128 26 104 60 104', 'arr-acc', 'aa') + H(14, 92, 'undo', 'acc', 16);
+      s += H(180, 202, 'choose → explore → un-choose', 'acc', 18, 'middle');
+      return svg('backtrack', 'A decision tree of take or skip choices with an undo arrow climbing back up.', s);
+    },
+    dp: () => {
+      let s = H(14, 26, 'write each step in the notebook once', '', 21);
+      const w = [1, 2, 3, 5, 8, 13];
+      w.forEach((v, k) => { const i = k + 1, x = 30 + k * 44, y = 172 - i * 20; s += R(x, y, 44, i * 20, k === 5 ? 'box-hi' : 'box', 0) + H(x + 22, y - 6, v, k === 5 ? 'acc' : '', 20, 'middle'); });
+      s += A('M186 70C206 36 236 28 258 34', 'arr-acc', 'aa') + A('M230 52C240 42 248 40 258 42', 'arr-acc', 'aa');
+      s += H(306, 120, 'n−1', '', 15, 'middle') + H(306, 138, '+ n−2', '', 15, 'middle');
+      s += H(180, 202, 'ways(n) = ways(n−1) + ways(n−2)', '', 18, 'middle');
+      return svg('dp', 'A staircase with the number of ways written on each step; arrows from the two previous steps feed the next.', s);
+    },
+    greedy: () => {
+      let s = H(14, 26, 'a fuel gauge: how far can I reach?', '', 21);
+      s += Ln(20, 142, 340, 142);
+      [2, 3, 1, 1, 4].forEach((v, i) => { const x = 50 + i * 60; s += R(x - 9, 124, 18, 18, i === 1 ? 'box-hi' : 'box', 3) + T(x, 118, v, '', 13); });
+      s += A('M50 122Q110 76 170 122', 'arr dash') + A('M110 122Q200 40 290 122', 'arr-acc', 'aa');
+      s += Flag(290, 112) + H(296, 86, 'farthest', 'acc', 18);
+      s += H(180, 188, 'standing past "farthest"? stranded.', '', 18, 'middle');
+      return svg('greedy', 'Stations on a road with jump arcs; a flag marks the farthest reachable station.', s);
+    },
+    trie: () => {
+      let s = H(14, 26, 'a dictionary shaped like a tree', '', 21);
+      const n = { r: [46, 112], c: [104, 72], d: [104, 156], a: [162, 72], t: [222, 40], ar: [222, 80], p: [222, 120], o: [162, 156], g: [222, 160] };
+      [['r', 'c'], ['r', 'd'], ['c', 'a'], ['a', 't'], ['a', 'ar'], ['a', 'p'], ['d', 'o'], ['o', 'g']].forEach(([a, b]) => { s += Ln(n[a][0], n[a][1], n[b][0], n[b][1]); });
+      s += C(46, 112, 6, 'node-hi');
+      const lab = { c: 'c', d: 'd', a: 'a', t: 't', ar: 'r', p: 'p', o: 'o', g: 'g' };
+      Object.keys(lab).forEach(k => { s += C(n[k][0], n[k][1], 13, ['t', 'ar', 'p', 'g'].includes(k) ? 'node-hi' : 'node') + T(n[k][0], n[k][1] + 5, lab[k], '', 13); });
+      ['t', 'ar', 'p', 'g'].forEach(k => { s += Flag(n[k][0] + 12, n[k][1] - 8); });
+      s += H(256, 46, 'cat', 'acc', 18) + H(256, 86, 'car', 'acc', 18) + H(256, 126, 'cap', 'acc', 18) + H(256, 166, 'dog', 'acc', 18);
+      s += H(180, 202, 'shared prefix = shared road · flag = word ends', '', 16, 'middle');
+      return svg('trie', 'A letter tree where cat, car and cap share the road c-a, and dog branches off; flags mark word endings.', s);
+    }
+  };
+
+  // ---------- pattern notes ----------
+  const PATTERNS = [
+    { key: 'hash', name: 'Arrays & Hashing', mantra: '"Have I seen this before?" Ask the hash map, not the array.',
+      cues: ['You need an O(1) "seen before?" check', 'Counting, grouping or frequencies', 'Pair or partner lookup in an unsorted array'],
+      tpl: `unordered_map<int,int> seen;          // value → index (or count)
+for (int i = 0; i < n; i++) {
+    if (seen.count(target - a[i])) { /* found the partner */ }
+    seen[a[i]] = i;
+}` },
+    { key: 'prefix', name: 'Prefix Sum & Kadane', mantra: 'Keep a running total. A range sum is just two readings subtracted.',
+      cues: ['Sum of a subarray or range', 'Count subarrays with sum = k', 'Maximum subarray (Kadane)'],
+      tpl: `unordered_map<int,int> cnt{{0, 1}}; int pre = 0, ans = 0;
+for (int x : a) { pre += x; ans += cnt[pre - k]; cnt[pre]++; }
+// Kadane: cur = max(x, cur + x); best = max(best, cur);` },
+    { key: 'twoptr', name: 'Two Pointers', mantra: 'Sorted? Squeeze from both ends.',
+      cues: ['Sorted array + pair or triplet', 'Compare from both ends (palindromes, containers)', 'Partition in place'],
+      tpl: `int l = 0, r = n - 1;
+while (l < r) {
+    int s = a[l] + a[r];
+    if (s == target) { /* record */ l++; r--; }
+    else if (s < target) l++;
+    else r--;
+}` },
+    { key: 'window', name: 'Sliding Window', mantra: 'Expand right. While it breaks the rule, shrink left.',
+      cues: ['Longest or shortest contiguous substring/subarray with a rule', 'A fixed window of size k', 'Counts inside a moving range'],
+      tpl: `int l = 0, best = 0;
+for (int r = 0; r < n; r++) {
+    add(a[r]);
+    while (!valid()) remove(a[l++]);
+    best = max(best, r - l + 1);
+}` },
+    { key: 'stack', name: 'Stack & Monotonic Stack', mantra: 'Last in, first out. A newcomer answers everyone smaller waiting below.',
+      cues: ['Matching brackets', 'Next greater or next smaller element', 'Spans and histogram areas'],
+      tpl: `stack<int> st;                         // indices, values decreasing
+for (int i = 0; i < n; i++) {
+    while (!st.empty() && a[st.top()] < a[i]) {
+        ans[st.top()] = i;                 // a[i] is the next greater
+        st.pop();
+    }
+    st.push(i);
+}` },
+    { key: 'bsearch', name: 'Binary Search', mantra: 'Halve the space. If you can check an answer, you can search for it.',
+      cues: ['Sorted or rotated array', '"Minimum X such that it works" → search the answer', 'A yes/no test that flips only once'],
+      tpl: `int lo = MIN_ANS, hi = MAX_ANS;
+while (lo < hi) {
+    int mid = lo + (hi - lo) / 2;
+    if (ok(mid)) hi = mid; else lo = mid + 1;
+}
+return lo;                             // first value where ok() is true` },
+    { key: 'list', name: 'Linked List', mantra: 'A dummy head plus fast and slow pointers solve most of them.',
+      cues: ['Reverse, merge, find a cycle, remove the Nth node', 'Edge cases at the head → use a dummy node', 'O(1) reordering of nodes'],
+      tpl: `ListNode dummy(0, head);              // removes head edge cases
+ListNode *slow = &dummy, *fast = &dummy;
+// reverse: nxt = cur->next; cur->next = prev; prev = cur; cur = nxt;
+// cycle:   slow = slow->next; fast = fast->next->next;` },
+    { key: 'tree', name: 'Trees', mantra: 'Trust the recursion: get answers from children, combine, return.',
+      cues: ['The answer at a node depends on its children', 'Level by level → BFS with a queue', 'BST → in-order traversal is sorted'],
+      tpl: `int dfs(TreeNode* r) {
+    if (!r) return 0;                  // base case
+    int L = dfs(r->left), R = dfs(r->right);
+    best = max(best, L + R);           // update a global answer if needed
+    return 1 + max(L, R);              // what the parent needs
+}` },
+    { key: 'heap', name: 'Heap / Priority Queue', mantra: 'Always need the smallest or largest next? Let the heap keep score.',
+      cues: ['Top K / Kth largest', 'Merge K sorted things', 'A running median, or the next cheapest choice'],
+      tpl: `priority_queue<int, vector<int>, greater<int>> pq;   // min-heap
+for (int x : a) { pq.push(x); if ((int)pq.size() > k) pq.pop(); }
+// pq holds the k largest; pq.top() is the k-th largest` },
+    { key: 'interval', name: 'Intervals', mantra: 'Sort first. By start to merge, by end to keep the most.',
+      cues: ['Time slots, meetings, bookings', 'Overlaps → sort by start and sweep', 'Fewest rooms or riders → heap of end times'],
+      tpl: `sort(v.begin(), v.end());              // by start
+for (auto& iv : v)
+    if (res.empty() || res.back()[1] < iv[0]) res.push_back(iv);
+    else res.back()[1] = max(res.back()[1], iv[1]);` },
+    { key: 'graph', name: 'Graphs: BFS, DFS, Dijkstra, Topo', mantra: 'Fewest steps → BFS. Weighted → Dijkstra. Prerequisites → topological sort.',
+      cues: ['A grid of cells, or cities and roads', 'Spreading from many sources at once → multi-source BFS', 'Dependencies or ordering → Kahn\'s algorithm'],
+      tpl: `queue<int> q; q.push(src); vis[src] = true;
+for (int level = 0; !q.empty(); level++)
+    for (int s = q.size(); s > 0; s--) {
+        int u = q.front(); q.pop();
+        for (int v : g[u]) if (!vis[v]) { vis[v] = true; q.push(v); }
+    }` },
+    { key: 'backtrack', name: 'Backtracking', mantra: 'Choose, explore, un-choose.',
+      cues: ['Generate all subsets, permutations or combinations', 'Search for a path on a board', 'Small input size (n ≤ 15 or so)'],
+      tpl: `void bt(int i, vector<int>& cur) {
+    if (i == n) { res.push_back(cur); return; }
+    for (int choice : options(i)) {
+        cur.push_back(choice);         // choose
+        bt(i + 1, cur);                // explore
+        cur.pop_back();                // un-choose
+    }
+}` },
+    { key: 'dp', name: 'Dynamic Programming', mantra: 'Recursion that keeps repeating itself? Write each answer in the notebook once.',
+      cues: ['Count ways, minimum cost or maximum value', 'The brute-force recursion repeats the same calls', 'Two strings → a 2-D table'],
+      tpl: `// 1. state:      dp[i] = answer for the first i items
+// 2. recurrence: dp[i] = best(dp[i-1], dp[i-2] + a[i], ...)
+// 3. base case:  dp[0] = ...
+for (int i = 1; i <= n; i++) dp[i] = /* recurrence */;
+// 4. keep only the rows you need → O(1) or O(m) space` },
+    { key: 'greedy', name: 'Greedy', mantra: 'Take the locally best step, and be ready to say why it is safe.',
+      cues: ['Reach, jump or fuel problems', 'One pass where the best choice so far is enough', 'Sorting makes the choice obvious'],
+      tpl: `int far = 0;
+for (int i = 0; i < n; i++) {
+    if (i > far) return false;         // stranded
+    far = max(far, i + a[i]);          // best reach so far
+}
+return true;` },
+    { key: 'trie', name: 'Trie', mantra: 'Words that share a prefix share a road.',
+      cues: ['Prefix queries and autocomplete', 'Many lookups in one word dictionary', 'Word search with many target words'],
+      tpl: `struct Node { Node* ch[26] = {}; bool end = false; };
+Node* n = root;
+for (char c : w) {
+    if (!n->ch[c - 'a']) n->ch[c - 'a'] = new Node();
+    n = n->ch[c - 'a'];
+}
+n->end = true;` }
+  ];
+
+  // ---------- helpers ----------
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const KW = new Set('int long double float char bool void auto const return if else for while do break continue class struct public private true false nullptr new delete using namespace template typename unsigned static this operator'.split(' '));
+  const TY = new Set('vector string pair map unordered_map unordered_set set multiset queue deque stack priority_queue list array bitset function ListNode TreeNode Node DSU greater size_t'.split(' '));
+  function hl(code) {
+    const re = /(\/\/[^\n]*)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])')|(\b\d+\b)|([A-Za-z_]\w*)|([\s\S])/g;
+    let out = '', m;
+    while ((m = re.exec(code))) {
+      if (m[1]) out += `<span class="c">${esc(m[1])}</span>`;
+      else if (m[2]) out += `<span class="s">${esc(m[2])}</span>`;
+      else if (m[3]) out += `<span class="n">${m[3]}</span>`;
+      else if (m[4]) {
+        const w = m[4], next = code.slice(re.lastIndex).match(/^\s*\(/);
+        if (KW.has(w)) out += `<span class="k">${w}</span>`;
+        else if (TY.has(w)) out += `<span class="ty">${w}</span>`;
+        else if (next) out += `<span class="fn">${w}</span>`;
+        else out += w;
+      } else out += esc(m[5]);
+    }
+    return out;
+  }
+  const rank = label => /^naive/i.test(label) ? 'slow' : /^optimised/i.test(label) ? 'mid' : /^best/i.test(label) ? 'fast' : 'neutral';
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem('dsa-atlas-revised') || '[]'); } catch (e) { return []; } },
+    set(v) { try { localStorage.setItem('dsa-atlas-revised', JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+  };
+  let revised = new Set(store.get());
+
+  function hookHTML(h) {
+    // highlight the part in quotes or after the colon, so the story stands out
+    const e = esc(h);
+    return e.replace(/(&quot;[^&]+?&quot;|"[^"]+?")/, '<mark>$1</mark>');
+  }
+
+  function solPanel(p, i) {
+    const s = p.sols[i];
+    return `<ol>${s.steps.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
+      <div class="codebox"><div class="codebar"><span class="cx">Time <b>${esc(s.time)}</b> · Space <b>${esc(s.space)}</b></span>
+      <button class="copy" type="button" data-q="${p.id}" data-i="${i}">Copy C++</button></div>
+      <pre><code>${hl(s.code)}</code></pre></div>`;
+  }
+
+  function cardHTML(p) {
+    const def = Math.max(0, p.sols.findIndex(s => rank(s.label) === 'fast')) || 0;
+    const sel = p.sols.some(s => rank(s.label) === 'fast') ? def : p.sols.length - 1;
+    const desc = window.VIZ && VIZ.DESC ? VIZ.DESC[p.id] : null;
+    const tags = (p.tag === 'blitz' ? '<span class="pill blitz">Asked at Blitz</span>' : '') + (p.tag === 'logistics' ? '<span class="pill logistics">Logistics</span>' : '');
+    const ladder = p.sols.map((s, i) => `${i ? '<span class="chev" aria-hidden="true">›</span>' : ''}<button type="button" class="rung ${rank(s.label)}" data-q="${p.id}" data-i="${i}" aria-pressed="${i === sel}"><span class="lab">${esc(s.label)}</span><span class="t">${esc(s.time)}</span></button>`).join('');
+    const done = revised.has(p.id);
+    return `<article class="card${done ? ' revised' : ''}" id="q-${p.id}" data-q="${p.id}">
+      <div class="card-head"><span class="qno">#${p.id}</span><h3><a href="#q-${p.id}">${esc(p.title)}</a></h3>
+      <span class="lc">LC ${p.lc}</span><span class="pill ${p.diff}">${p.diff}</span>${tags}</div>
+      ${desc ? `<p class="desc">${esc(desc[0])}<span class="ex"><b>e.g.</b>${esc(desc[1])}</span></p>` : ''}
+      <p class="hook"><span class="story">story:</span>${hookHTML(p.hook)}</p>
+      <figure class="viz" id="viz-${p.id}" data-def="${sel}">${window.VIZ ? VIZ.render(p.id, sel, 0, sel) : ''}</figure>
+      <div class="ladder" role="group" aria-label="Solutions from naive to best">${ladder}</div>
+      <div class="panel" id="panel-${p.id}">${solPanel(p, sel)}</div>
+      <div class="card-foot"><button type="button" class="rev" data-q="${p.id}" aria-pressed="${done}">${done ? 'Revised ✓' : 'Mark as revised'}</button></div>
+    </article>`;
+  }
+
+  function render(data) {
+    const byId = new Map(data.map(p => [p.id, p]));
+    const atlas = document.getElementById('atlas');
+    atlas.innerHTML = PATTERNS.map((pt, k) => {
+      const items = data.filter(p => p.pattern === pt.key);
+      return `<section class="pattern" id="p-${pt.key}" data-pat="${pt.key}">
+        <div class="pat-head"><span class="pat-no">${String(k + 1).padStart(2, '0')}</span><h2>${esc(pt.name)}</h2><span class="count">${items.length} problem${items.length > 1 ? 's' : ''}</span></div>
+        <div class="pat-body">
+          <figure class="sketch">${DRAW[pt.key]()}</figure>
+          <div class="pat-notes">
+            <p class="mantra">${esc(pt.mantra)}</p>
+            <h4>Spot it when</h4><ul>${pt.cues.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+            <h4>Template</h4>
+            <div class="codebox tpl"><pre><code>${hl(pt.tpl)}</code></pre></div>
+          </div>
+        </div>
+        <div class="cards">${items.map(cardHTML).join('')}</div>
+      </section>`;
+    }).join('') + '<p class="empty" id="none" hidden>No problems match. Clear the search or pick another filter.</p>';
+
+    document.getElementById('jump').innerHTML = PATTERNS.map(pt => `<a class="chip pat" href="#p-${pt.key}">${esc(pt.name.split(':')[0])}</a>`).join('');
+
+    const FILTERS = [['all', 'All 80'], ['blitz', 'Asked at Blitz'], ['logistics', 'Logistics'], ['Easy', 'Easy'], ['Medium', 'Medium'], ['Hard', 'Hard'], ['todo', 'Not revised']];
+    let filter = 'all';
+    const fEl = document.getElementById('filters');
+    fEl.innerHTML = FILTERS.map(([k, l]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="${k === filter}">${l}</button>`).join('');
+
+    const prog = () => { document.getElementById('prog').textContent = `${revised.size} / ${data.length} revised`; };
+    prog();
+
+    function apply() {
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      let shown = 0;
+      document.querySelectorAll('.pattern').forEach(sec => {
+        const pt = PATTERNS.find(x => x.key === sec.dataset.pat);
+        let any = 0;
+        sec.querySelectorAll('.card').forEach(card => {
+          const p = byId.get(+card.dataset.q);
+          const hay = `${p.title} ${p.lc} ${p.hook} ${pt.name} ${pt.key} ${p.diff}`.toLowerCase();
+          const okF = filter === 'all' || p.tag === filter || p.diff === filter || (filter === 'todo' && !revised.has(p.id));
+          const ok = okF && (!q || hay.includes(q));
+          card.hidden = !ok; if (ok) any++;
+        });
+        sec.hidden = !any; shown += any;
+      });
+      document.getElementById('none').hidden = shown > 0;
+    }
+
+    document.getElementById('q').addEventListener('input', apply);
+    fEl.addEventListener('click', e => {
+      const b = e.target.closest('[data-f]'); if (!b) return;
+      filter = b.dataset.f;
+      fEl.querySelectorAll('[data-f]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      apply();
+    });
+
+    atlas.addEventListener('click', e => {
+      const vz = e.target.closest('.vz-btn');
+      if (vz) { const fig = document.getElementById(`viz-${vz.dataset.vz}`); fig.innerHTML = VIZ.render(+vz.dataset.vz, +vz.dataset.si, +vz.dataset.to, +fig.dataset.def); return; }
+      const rung = e.target.closest('.rung');
+      if (rung) {
+        const p = byId.get(+rung.dataset.q), i = +rung.dataset.i;
+        rung.parentElement.querySelectorAll('.rung').forEach(r => r.setAttribute('aria-pressed', String(r === rung)));
+        document.getElementById(`panel-${p.id}`).innerHTML = solPanel(p, i);
+        const fig = document.getElementById(`viz-${p.id}`); fig.innerHTML = VIZ.render(p.id, i, 0, +fig.dataset.def);
+        return;
+      }
+      const cp = e.target.closest('.copy');
+      if (cp) {
+        const p = byId.get(+cp.dataset.q), code = p.sols[+cp.dataset.i].code;
+        const done = ok => { cp.textContent = ok ? 'Copied' : 'Select the code to copy'; setTimeout(() => { cp.textContent = 'Copy C++'; }, 1600); };
+        try { navigator.clipboard.writeText(code).then(() => done(true), () => done(false)); } catch (err) { done(false); }
+        return;
+      }
+      const rv = e.target.closest('.rev');
+      if (rv) {
+        const id = +rv.dataset.q, card = rv.closest('.card');
+        if (revised.has(id)) revised.delete(id); else revised.add(id);
+        const on = revised.has(id);
+        rv.setAttribute('aria-pressed', String(on)); rv.textContent = on ? 'Revised ✓' : 'Mark as revised';
+        card.classList.toggle('revised', on);
+        store.set([...revised]); prog();
+        if (filter === 'todo') apply();
+      }
+    });
+
+    if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+  }
+
+  fetch('problems.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(render).catch(() => {
+    document.getElementById('atlas').innerHTML = '<p class="err">The problem list could not load. Reload the page to try again.</p>';
+  });
+})();
+</script>
+</body>
+</html>
