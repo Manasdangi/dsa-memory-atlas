@@ -410,7 +410,8 @@
     const base = framesFor(id, si, def); if (!base) return null;
     const input = (window.VIZ.INPUT || {})[id], desc = (window.VIZ.DESC || {})[id];
     const pre = ((window.VIZ.PRE || {})[id] || {})[si] || [], post = ((window.VIZ.POST || {})[id] || {})[si] || [];
-    const own = [...pre, ...base, ...post];
+    const dry = ((window.VIZ.DRY || {})[id] || {})[si];
+    const own = dry && dry.length ? dry : [...pre, ...base, ...post];
     return input ? [{ c: desc ? desc[0] : 'The input', r: input, input: true }, ...own] : own;
   }
 
