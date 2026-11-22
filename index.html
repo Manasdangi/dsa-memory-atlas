@@ -94,6 +94,24 @@ h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
 .side-no { font: 500 11px/1 var(--f-mono); color: var(--muted); }
 .side-count { font: 500 11px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 7px; font-variant-numeric: tabular-nums; }
 .side-link.active .side-count { border-color: var(--accent); color: var(--accent); }
+/* sticky note taker */
+.notes { display: none; flex-direction: column; gap: 8px; background: var(--card); border: 1.5px solid var(--line); border-top: 4px solid var(--hi); border-radius: 12px; padding: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+.notes.open { display: flex; position: fixed; right: 16px; bottom: 72px; width: min(300px, calc(100vw - 32px)); z-index: 30; }
+.notes-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.notes-head h2 { font: 700 22px/1 var(--f-hand); color: var(--accent); margin: 0; }
+.notes-act { display: flex; gap: 6px; }
+.notes button { font: 600 12px/1 var(--f-body); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+.notes button:hover { border-color: var(--accent); }
+.notes button.danger { color: var(--slow); border-color: var(--slow); }
+.notes textarea { width: 100%; box-sizing: border-box; min-height: 260px; max-height: 60vh; resize: vertical; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 14px/1.5 var(--f-body); }
+.notes textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.notes-meta { font: 11px/1 var(--f-mono); color: var(--muted); }
+.notes-fab { position: fixed; right: 16px; bottom: 16px; z-index: 30; font: 600 14px/1 var(--f-body); color: var(--paper); background: var(--accent); border: 0; border-radius: 999px; padding: 12px 16px; box-shadow: 0 6px 18px rgba(0,0,0,.25); cursor: pointer; }
+@media (min-width: 1480px) {
+  .col2 { max-width: 1560px; grid-template-columns: 230px minmax(0, 1fr) 250px; }
+  .notes, .notes.open { display: flex; position: sticky; top: calc(var(--tools-h, 104px) + 26px); align-self: start; width: auto; right: auto; bottom: auto; margin-top: 26px; box-shadow: none; }
+  .notes-fab, .notes-close { display: none; }
+}
 @media (max-width: 900px) {
   .col2 { grid-template-columns: minmax(0, 1fr); }
   .gutter { display: none; }
@@ -282,7 +300,19 @@ footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
     <nav id="jump"></nav>
   </aside>
   <main id="atlas"><p class="empty">Loading the atlas…</p></main>
+  <aside class="notes" id="notes" aria-label="Notes">
+    <div class="notes-head">
+      <h2>Notes</h2>
+      <div class="notes-act">
+        <button type="button" id="notes-clear">Clear</button>
+        <button type="button" class="notes-close" id="notes-close" aria-label="Close notes">✕</button>
+      </div>
+    </div>
+    <textarea id="notes-text" placeholder="Jot down tricks, edge cases, doubts… saved in this browser." aria-label="Your notes"></textarea>
+    <span class="notes-meta" id="notes-meta">Saved locally</span>
+  </aside>
 </div>
+<button type="button" class="notes-fab" id="notes-fab" aria-controls="notes" aria-expanded="false">Notes</button>
 <footer class="col2"><div class="gutter" aria-hidden="true"></div><div>
   <p>Every solution was compiled with g++ in C++17 and run against LeetCode's sample cases plus edge cases. Signatures match LeetCode, so you can paste any solution straight into the editor.</p>
   <p><a href="dsa_80_solutions_commented.cpp" download>Download all 195 solutions (.cpp)</a> · <a href="https://github.com/Manasdangi/dsa-memory-atlas">Source on GitHub</a> · Made by <a href="https://manasraj.online/">Manas Raj</a> · <a href="https://topmate.io/manas_raj_mnit">1:1 interview prep on Topmate</a></p>
@@ -788,6 +818,27 @@ n->end = true;` }
   fetch('problems.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(render).catch(() => {
     document.getElementById('atlas').innerHTML = '<p class="err">The problem list could not load. Reload the page to try again.</p>';
   });
+})();
+</script>
+<script>
+(function () {
+  const KEY = 'dsa-atlas-notes', box = document.getElementById('notes'), ta = document.getElementById('notes-text');
+  const meta = document.getElementById('notes-meta'), clr = document.getElementById('notes-clear'), fab = document.getElementById('notes-fab');
+  const load = () => { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
+  const save = v => { try { localStorage.setItem(KEY, v); } catch (e) { /* storage unavailable */ } };
+  const show = () => { const n = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0; meta.textContent = n ? `${n} word${n > 1 ? 's' : ''} · saved locally` : 'Saved locally'; };
+  ta.value = load(); show();
+  let t; ta.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { save(ta.value); show(); }, 250); });
+  let armed = null;
+  clr.addEventListener('click', () => {
+    if (!ta.value) return;
+    if (!armed) { clr.textContent = 'Sure? Clear'; clr.classList.add('danger'); armed = setTimeout(() => { armed = null; clr.textContent = 'Clear'; clr.classList.remove('danger'); }, 3000); return; }
+    clearTimeout(armed); armed = null; clr.textContent = 'Clear'; clr.classList.remove('danger');
+    ta.value = ''; save(''); show(); ta.focus();
+  });
+  const setOpen = o => { box.classList.toggle('open', o); fab.setAttribute('aria-expanded', String(o)); fab.textContent = o ? 'Close notes' : 'Notes'; if (o) ta.focus(); };
+  fab.addEventListener('click', () => setOpen(!box.classList.contains('open')));
+  document.getElementById('notes-close').addEventListener('click', () => setOpen(false));
 })();
 </script>
 </body>
