@@ -409,7 +409,9 @@
   function allFrames(id, si, def) {
     const base = framesFor(id, si, def); if (!base) return null;
     const input = (window.VIZ.INPUT || {})[id], desc = (window.VIZ.DESC || {})[id];
-    return input ? [{ c: desc ? desc[0] : 'The input', r: input, input: true }, ...base] : base;
+    const pre = ((window.VIZ.PRE || {})[id] || {})[si] || [], post = ((window.VIZ.POST || {})[id] || {})[si] || [];
+    const own = [...pre, ...base, ...post];
+    return input ? [{ c: desc ? desc[0] : 'The input', r: input, input: true }, ...own] : own;
   }
 
   function render(id, si, fi, def, playing) {
