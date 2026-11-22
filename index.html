@@ -142,7 +142,6 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .card h3 a { color: inherit; text-decoration: none; }
 .pill { font: 600 11px/1 var(--f-body); letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 4px 8px; border: 1px solid currentColor; white-space: nowrap; }
 .pill.Easy { color: var(--fast); } .pill.Medium { color: var(--mid); } .pill.Hard { color: var(--slow); }
-.pill.logistics { color: var(--accent); }
 .lc { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
 .desc { margin: 8px 0 0; font-size: 15px; color: var(--ink); max-width: 68ch; }
 .desc .ex { display: block; margin-top: 4px; font: 500 12.5px/1.5 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
@@ -639,7 +638,7 @@ n->end = true;` }
     const def = Math.max(0, p.sols.findIndex(s => rank(s.label) === 'fast')) || 0;
     const sel = p.sols.some(s => rank(s.label) === 'fast') ? def : p.sols.length - 1;
     const desc = window.VIZ && VIZ.DESC ? VIZ.DESC[p.id] : null;
-    const tags = (p.tag === 'logistics' ? '<span class="pill logistics">Logistics</span>' : '');
+    const tags = '';
     const ladder = p.sols.map((s, i) => `${i ? '<span class="chev" aria-hidden="true">›</span>' : ''}<button type="button" class="rung ${rank(s.label)}" data-q="${p.id}" data-i="${i}" aria-pressed="${i === 0}"><span class="lab">${esc(s.label)}</span><span class="t">${esc(s.time)}</span></button>`).join('');
     const done = revised.has(p.id);
     return `<article class="card${done ? ' revised' : ''}" id="q-${p.id}" data-q="${p.id}">
@@ -700,7 +699,7 @@ n->end = true;` }
     window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); } }, { passive: true });
     onScroll();
 
-    const FILTERS = [['all', 'All 80'], ['logistics', 'Logistics'], ['Easy', 'Easy'], ['Medium', 'Medium'], ['Hard', 'Hard'], ['todo', 'Not revised']];
+    const FILTERS = [['all', 'All 80'], ['Easy', 'Easy'], ['Medium', 'Medium'], ['Hard', 'Hard'], ['todo', 'Not revised']];
     let filter = 'all';
     const fEl = document.getElementById('filters');
     fEl.innerHTML = FILTERS.map(([k, l]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="${k === filter}">${l}</button>`).join('');
