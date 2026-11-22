@@ -181,6 +181,15 @@ pre { margin: 0; padding: 12px 14px; overflow-x: auto; font: 13px/1.55 var(--f-m
 .viz .vwater { fill: color-mix(in srgb, var(--accent) 45%, transparent); }
 .viz .vrect { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 2; }
 .viz .vmk-a { fill: var(--accent); } .viz .vmk-k { fill: var(--ink); }
+.viz .vhd { fill: var(--ink); }
+.viz .vht { font: 600 11px var(--f-mono); fill: var(--card); }
+.viz .vht.vr { text-anchor: end; }
+.viz .vcap { font: 500 12.5px var(--f-body); fill: var(--ink); }
+.viz .vans { fill: color-mix(in srgb, var(--fast) 22%, var(--card)); stroke: var(--fast); stroke-width: 1.5; }
+.viz .vanst { font: 700 13px var(--f-body); fill: var(--ink); }
+.viz .vleg { font: 500 10px var(--f-body); fill: var(--muted); }
+.viz .vsep { stroke: var(--line); stroke-width: 1; }
+.vz-play { min-width: 84px; }
 
 .empty, .err { padding: 30px 0; color: var(--muted); }
 footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
@@ -223,7 +232,7 @@ footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
     <span class="lad"><span class="dot slow"></span>Naive</span>
     <span class="lad"><span class="dot mid"></span>Optimised</span>
     <span class="lad"><span class="dot fast"></span>Best</span>
-    <span>Every card opens with the problem, then a step-by-step picture. Tap a ladder step (Naive, Optimised, Best) and both the picture and the code switch to that solution.</span>
+    <span>Every card opens with the problem, then a step-by-step picture that starts from the input and ends with the answer. Press Play to watch it run. Tap a ladder step (Naive, Optimised, Best) and both the picture and the code switch to that solution.</span>
   </div>
   <p class="tip"><strong>Before the round:</strong> look at the 15 pictures, then pick a pattern and read each story out loud, start from the Naive picture, then climb the ladder to Best and write it from memory. Picture yaad rahegi, code apne aap aayega.</p>
 </header>
@@ -598,6 +607,7 @@ n->end = true;` }
   }
 
   function render(data) {
+    if (window.VIZ) VIZ.setData(data);
     const byId = new Map(data.map(p => [p.id, p]));
     const atlas = document.getElementById('atlas');
     atlas.innerHTML = PATTERNS.map((pt, k) => {
@@ -653,15 +663,31 @@ n->end = true;` }
       apply();
     });
 
+    const timers = {};
+    const stopPlay = id => { if (timers[id]) { clearInterval(timers[id]); delete timers[id]; } };
     atlas.addEventListener('click', e => {
       const vz = e.target.closest('.vz-btn');
-      if (vz) { const fig = document.getElementById(`viz-${vz.dataset.vz}`); fig.innerHTML = VIZ.render(+vz.dataset.vz, +vz.dataset.si, +vz.dataset.to, +fig.dataset.def); return; }
+      const pl = e.target.closest('.vz-play');
+      if (pl) {
+        const id = +pl.dataset.play, si = +pl.dataset.si, n = +pl.dataset.n, fig = document.getElementById(`viz-${id}`), def = +fig.dataset.def;
+        if (timers[id]) { stopPlay(id); fig.innerHTML = VIZ.render(id, si, +pl.dataset.k, def); return; }
+        let k = +pl.dataset.k; if (k >= n - 1) k = 0;
+        fig.innerHTML = VIZ.render(id, si, k, def, true);
+        timers[id] = setInterval(() => {
+          k++;
+          const done = k >= n - 1;
+          fig.innerHTML = VIZ.render(id, si, Math.min(k, n - 1), def, !done);
+          if (done) stopPlay(id);
+        }, 1700);
+        return;
+      }
+      if (vz) { stopPlay(+vz.dataset.vz); const fig = document.getElementById(`viz-${vz.dataset.vz}`); fig.innerHTML = VIZ.render(+vz.dataset.vz, +vz.dataset.si, +vz.dataset.to, +fig.dataset.def); return; }
       const rung = e.target.closest('.rung');
       if (rung) {
         const p = byId.get(+rung.dataset.q), i = +rung.dataset.i;
         rung.parentElement.querySelectorAll('.rung').forEach(r => r.setAttribute('aria-pressed', String(r === rung)));
         document.getElementById(`panel-${p.id}`).innerHTML = solPanel(p, i);
-        const fig = document.getElementById(`viz-${p.id}`); fig.innerHTML = VIZ.render(p.id, i, 0, +fig.dataset.def);
+        stopPlay(p.id); const fig = document.getElementById(`viz-${p.id}`); fig.innerHTML = VIZ.render(p.id, i, 0, +fig.dataset.def);
         return;
       }
       const cp = e.target.closest('.copy');

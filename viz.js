@@ -164,10 +164,68 @@
 
   const ROW = { a: arr, kv, n: note, b: bars, g: grid, t: tree, l: list, i: intervals, gr: graph, m: matrix };
 
-  function frameSVG(rows, label) {
-    const m = 'vz' + (++uid); let y = 8, body = '';
+  // colour meaning used in every legend
+  const LEG = { y: 'looking at now', g: 'kept / answer', r: 'rejected / removed', b: 'second group', m: 'ruled out' };
+  function used(rows) {
+    const k = new Set(); let win = false, ptr = false, water = false, area = false;
+    const addH = h => { if (h) String(h).split(',').forEach(t => { t = t.trim(); if (t) k.add(t.slice(-1)); }); };
+    rows.forEach(r => {
+      addH(r.h);
+      if (r.t === 'gr') { r.n.forEach(nd => nd[3] && k.add(nd[3])); r.e.forEach(e => e[3] && k.add(e[3])); }
+      if (r.t === 'i') r.v.forEach(x => x[2] && k.add(x[2]));
+      if (r.w) win = true;
+      if (r.p) ptr = true;
+      if (r.water && r.water.some(x => x)) water = true;
+      if (r.rect) area = true;
+    });
+    return { k: ['y', 'g', 'r', 'b', 'm'].filter(x => k.has(x)), win, ptr, water, area };
+  }
+  function wrap(text, max) {
+    const out = []; let cur = '';
+    String(text || '').split(' ').forEach(w => { if ((cur + ' ' + w).trim().length > max) { if (cur) out.push(cur.trim()); cur = w; } else cur += ' ' + w; });
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
+
+  // one picture = header band + explanation + drawing + (answer) + legend, all inside the SVG
+  function frameSVG(rows, meta) {
+    const m = 'vz' + (++uid); let body = '', y = 0;
+    body += `<rect x="0" y="0" width="${W}" height="26" rx="7" class="vhd"/>`
+      + `<text x="10" y="17.5" class="vht">${esc(meta.head)}</text>`
+      + `<text x="${W - 10}" y="17.5" class="vht vr">${esc(meta.step)}</text>`;
+    y = 34;
+    const capLines = wrap(meta.cap, 56);
+    capLines.forEach((ln, i) => { body += `<text x="${PX}" y="${y + 12 + i * 17}" class="vcap">${esc(ln)}</text>`; });
+    y += capLines.length * 17 + 12;
     rows.forEach(r => { const out = ROW[r.t](r, y, m); body += out.s; y += out.h + 12; });
-    return `<svg viewBox="0 0 ${W} ${y}" role="img" aria-label="${esc(label)}"><defs>
+    if (meta.ans) {
+      const al = wrap('✓ Answer: ' + meta.ans, 50), h = al.length * 17 + 12;
+      body += rect(PX, y, W - 2 * PX, h, 'vans', 8);
+      al.forEach((ln, i) => { body += `<text x="${PX + 10}" y="${y + 19 + i * 17}" class="vanst">${esc(ln)}</text>`; });
+      y += h + 12;
+    }
+    const u = used(rows), items = u.k.map(k => [k, LEG[k]]);
+    if (u.win) items.push(['w', 'current window']);
+    if (u.ptr) items.push(['p', 'pointer']);
+    if (u.water) items.push(['wa', 'trapped water']);
+    if (u.area) items.push(['ar', 'area being measured']);
+    if (items.length) {
+      let x = PX; y += 2;
+      body += `<line x1="${PX}" y1="${y - 6}" x2="${W - PX}" y2="${y - 6}" class="vsep"/>`;
+      items.forEach(([k, lab]) => {
+        const w = lab.length * 5.6 + 22;
+        if (x + w > W - PX) { x = PX; y += 16; }
+        if (k === 'w') body += rect(x, y + 1, 12, 10, 'vw', 3);
+        else if (k === 'wa') body += rect(x, y + 1, 12, 10, 'vwater', 2);
+        else if (k === 'ar') body += rect(x, y + 1, 12, 10, 'vrect', 2);
+        else if (k === 'p') body += `<text x="${x + 6}" y="${y + 10}" class="vp">▲</text>`;
+        else body += rect(x, y + 1, 12, 10, 'vc v-' + k, 2);
+        body += `<text x="${x + 16}" y="${y + 10}" class="vleg">${esc(lab)}</text>`;
+        x += w;
+      });
+      y += 18;
+    }
+    return `<svg viewBox="0 0 ${W} ${y}" role="img" aria-label="${esc(meta.head + '. ' + meta.cap + (meta.ans ? ' Answer: ' + meta.ans : ''))}"><defs>
       <marker id="${m}a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="vmk-a"/></marker>
       <marker id="${m}k" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="vmk-k"/></marker>
       </defs>${body}</svg>`;
@@ -344,15 +402,30 @@
     return si === (own !== undefined ? own : def) ? S[id] : null;
   }
 
-  function render(id, si, fi, def) {
-    const frames = framesFor(id, si, def); if (!frames) return '';
-    const k = Math.max(0, Math.min(fi || 0, frames.length - 1)), f = frames[k];
-    const btn = (to, lab, off) => `<button type="button" class="vz-btn" data-vz="${id}" data-si="${si}" data-to="${to}" ${off ? 'disabled' : ''}>${lab}</button>`;
-    const nav = frames.length > 1
-      ? `<div class="vz-nav">${btn(k - 1, '‹ Prev', k === 0)}<span class="vz-count">Step ${k + 1} of ${frames.length}</span>${btn(k + 1, 'Next ›', k === frames.length - 1)}</div>`
-      : '';
-    return `<figcaption><span class="vz-tag">Picture</span>${esc(f.c)}</figcaption>${frameSVG(f.r, f.c)}${nav}`;
+  const DATA = {};
+  const cut = (t, n) => (t.length > n ? t.slice(0, n - 1) + '…' : t);
+
+  // full frame list for one solution: Input frame (shared per problem) + the solution's own frames
+  function allFrames(id, si, def) {
+    const base = framesFor(id, si, def); if (!base) return null;
+    const input = (window.VIZ.INPUT || {})[id], desc = (window.VIZ.DESC || {})[id];
+    return input ? [{ c: desc ? desc[0] : 'The input', r: input, input: true }, ...base] : base;
   }
 
-  window.VIZ = Object.assign(window.VIZ || {}, { render, framesFor, specs: S, h: { a, s, kvr, n, b, g, tr, l, iv, gr, m, F, N } });
+  function render(id, si, fi, def, playing) {
+    const frames = allFrames(id, si, def); if (!frames) return '';
+    const k = Math.max(0, Math.min(fi || 0, frames.length - 1)), f = frames[k], last = k === frames.length - 1;
+    const P = DATA[id], sol = P ? P.sols[si] : null;
+    const ansx = ((window.VIZ.ANSX || {})[id] || {})[si];
+    const ans = last ? (ansx !== undefined ? ansx : (window.VIZ.ANS || {})[id]) : null;
+    const head = f.input ? `INPUT · #${id} ${P ? P.title : ''}` : (sol ? `${sol.label.toUpperCase()} · ${sol.time} time` : '');
+    const svg = frameSVG(f.r, { head: cut(head, 40), step: `${k + 1} / ${frames.length}`, cap: f.c, ans });
+    const btn = (to, lab, off) => `<button type="button" class="vz-btn" data-vz="${id}" data-si="${si}" data-to="${to}" ${off ? 'disabled' : ''}>${lab}</button>`;
+    const nav = frames.length > 1
+      ? `<div class="vz-nav">${btn(k - 1, '‹ Prev', k === 0)}<button type="button" class="vz-btn vz-play" data-play="${id}" data-si="${si}" data-k="${k}" data-n="${frames.length}">${playing ? '■ Stop' : '▶ Play'}</button>${btn(k + 1, 'Next ›', last)}</div>`
+      : '';
+    return svg + nav;
+  }
+
+  window.VIZ = Object.assign(window.VIZ || {}, { render, framesFor, allFrames, setData: d => d.forEach(p => { DATA[p.id] = p; }), specs: S, h: { a, s, kvr, n, b, g, tr, l, iv, gr, m, F, N } });
 })();
