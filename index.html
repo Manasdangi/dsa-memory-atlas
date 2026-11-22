@@ -720,10 +720,22 @@ n->end = true;` }
     };
     const onScroll = () => {
       const line = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tools-h')) || 104) + 80;
-      let cur = null;
-      document.querySelectorAll('.pattern:not([hidden])').forEach(sec => { if (sec.getBoundingClientRect().top <= line) cur = sec.dataset.pat; });
+      let cur = null, curSec = null;
+      document.querySelectorAll('.pattern:not([hidden])').forEach(sec => { if (sec.getBoundingClientRect().top <= line) { cur = sec.dataset.pat; curSec = sec; } });
       const first = document.querySelector('.pattern:not([hidden])');
       setActive(cur || (first && first.dataset.pat));
+      syncUrl(curSec, line);
+    };
+    // keep the address bar pointing at the question on screen, so any question can be shared
+    let urlSync = false;
+    const syncUrl = (sec, line) => {
+      if (!urlSync) return;
+      let hash = '';
+      if (sec) {
+        hash = '#p-' + sec.dataset.pat;
+        sec.querySelectorAll('.card:not([hidden])').forEach(card => { if (card.getBoundingClientRect().top <= line) hash = '#q-' + card.dataset.q; });
+      }
+      if (hash !== location.hash) history.replaceState(null, '', hash || location.pathname + location.search);
     };
     let ticking = false;
     window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); } }, { passive: true });
@@ -813,6 +825,8 @@ n->end = true;` }
     });
 
     if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+    // start syncing only after the shared link has been scrolled to, so it is not overwritten on load
+    requestAnimationFrame(() => requestAnimationFrame(() => { urlSync = true; onScroll(); }));
   }
 
   fetch('problems.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(render).catch(() => {
