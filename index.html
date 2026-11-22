@@ -79,7 +79,32 @@ h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
 
 /* Sticky tools */
 .tools { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
-.tools .wrap { display: grid; gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+.tools-main { display: grid; gap: 8px; padding-top: 10px; padding-bottom: 10px; min-width: 0; }
+/* Layout: a 230px pattern sidebar on the left, content on the right; header, tools and footer align to the content column */
+.col2 { max-width: 1240px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: 230px minmax(0, 1fr); column-gap: 32px; }
+.col2 > * { min-width: 0; }
+#atlas, .top > div:last-child, .tools-main, footer > div:last-child { max-width: 920px; }
+.side { position: sticky; top: calc(var(--tools-h, 104px) + 8px); align-self: start; max-height: calc(100vh - var(--tools-h, 104px) - 24px); overflow-y: auto; padding: 26px 0 16px; scrollbar-width: thin; }
+.side-title { font: 600 11px/1 var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px 12px; }
+#jump { display: grid; gap: 2px; }
+.side-link { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 7px 10px 7px 9px; border-radius: 8px; border-left: 3px solid transparent; color: var(--ink); text-decoration: none; font-size: 14px; line-height: 1.3; }
+.side-link:hover { background: var(--card); }
+.side-link.active { background: var(--card); border-left-color: var(--accent); font-weight: 600; }
+.side-link[hidden] { display: none; }
+.side-no { font: 500 11px/1 var(--f-mono); color: var(--muted); }
+.side-count { font: 500 11px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 7px; font-variant-numeric: tabular-nums; }
+.side-link.active .side-count { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 900px) {
+  .col2 { grid-template-columns: minmax(0, 1fr); }
+  .gutter { display: none; }
+  .side { position: sticky; top: var(--tools-h, 104px); z-index: 9; max-height: none; overflow-x: auto; overflow-y: hidden; padding: 8px 0; background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .side::-webkit-scrollbar { display: none; }
+  .side-title { display: none; }
+  #jump { display: flex; gap: 6px; }
+  .side-link { flex: none; grid-template-columns: auto auto auto; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; background: var(--card); font-size: 13px; white-space: nowrap; }
+  .side-link.active { border-color: var(--accent); }
+  .pattern, .card { scroll-margin-top: calc(var(--tools-h, 104px) + 60px); }
+}
 .row { display: flex; gap: 8px; align-items: center; }
 .row.scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .row.scroll::-webkit-scrollbar { display: none; }
@@ -91,7 +116,7 @@ input[type="search"] { flex: 1; min-width: 0; font: inherit; font-size: 15px; co
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 /* Pattern section */
-.pattern { padding: 34px 0 8px; scroll-margin-top: 120px; }
+.pattern { padding: 34px 0 8px; scroll-margin-top: calc(var(--tools-h, 104px) + 12px); }
 .pat-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .pat-no { font-family: var(--f-mono); font-size: 14px; color: var(--paper); background: var(--ink); border-radius: 6px; padding: 2px 8px; }
 .pat-head h2 { font-size: clamp(24px, 4.6vw, 34px); font-weight: 800; letter-spacing: -0.01em; }
@@ -220,7 +245,7 @@ footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
 </style>
 </head>
 <body>
-<header class="top wrap">
+<header class="top col2"><div class="gutter" aria-hidden="true"></div><div>
   <h1>DSA Memory Atlas <span class="scribble">80 problems, drawn</span></h1>
   <p class="lede">80 interview problems grouped into 15 patterns. Each pattern gets one picture to remember. Each problem gets a one-line story and two or three C++ solutions, from naive to best, with the steps written out first.</p>
   <div class="stats">
@@ -235,29 +260,40 @@ footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
     <span>Every card opens with the problem, then a step-by-step picture that starts from the input and ends with the answer. Press Play to watch it run. Tap a ladder step (Naive, Optimised, Best) and both the picture and the code switch to that solution.</span>
   </div>
   <p class="tip"><strong>Before the round:</strong> look at the 15 pictures, then pick a pattern and read each story out loud, start from the Naive picture, then climb the ladder to Best and write it from memory. Picture yaad rahegi, code apne aap aayega.</p>
-</header>
+</div></header>
 
-<div class="tools">
-  <div class="wrap">
+<div class="tools" id="tools">
+  <div class="col2"><div class="gutter" aria-hidden="true"></div><div class="tools-main">
     <div class="row">
       <input id="q" type="search" placeholder="Search a problem, LC number or idea (e.g. 739, heap, window)" aria-label="Search problems">
       <span class="progress" id="prog">0 / 80 revised</span>
     </div>
     <div class="row scroll" id="filters" role="group" aria-label="Filters"></div>
-    <div class="row scroll" id="jump" aria-label="Jump to pattern"></div>
-  </div>
+  </div></div>
 </div>
 
-<main class="wrap" id="atlas"><p class="empty">Loading the atlas…</p></main>
-<footer class="wrap">
+<div class="col2 layout">
+  <aside class="side" aria-label="Patterns">
+    <p class="side-title">Patterns</p>
+    <nav id="jump"></nav>
+  </aside>
+  <main id="atlas"><p class="empty">Loading the atlas…</p></main>
+</div>
+<footer class="col2"><div class="gutter" aria-hidden="true"></div><div>
   <p>Every solution was compiled with g++ in C++17 and run against LeetCode's sample cases plus edge cases. Signatures match LeetCode, so you can paste any solution straight into the editor.</p>
   <p><a href="dsa_80_solutions_commented.cpp" download>Download all 195 solutions (.cpp)</a> · <a href="https://github.com/Manasdangi/dsa-memory-atlas">Source on GitHub</a> · Made by <a href="https://manasraj.online/">Manas Raj</a> · <a href="https://topmate.io/manas_raj_mnit">1:1 interview prep on Topmate</a></p>
-</footer>
+</div></footer>
 
 <script src="viz.js"></script>
 <script src="viz-x.js"></script>
 <script>
 (function () {
+  // keep --tools-h equal to the sticky search bar's height so the sidebar and anchors sit right below it
+  const toolsEl = document.getElementById('tools');
+  const setToolsH = () => document.documentElement.style.setProperty('--tools-h', toolsEl.offsetHeight + 'px');
+  setToolsH();
+  if (window.ResizeObserver) new ResizeObserver(setToolsH).observe(toolsEl);
+
   // ---------- tiny SVG drawing kit ----------
   const H = (x, y, t, cls = '', sz = 18, a = 'start') => `<text x="${x}" y="${y}" class="hand ${cls}" font-size="${sz}" text-anchor="${a}">${t}</text>`;
   const T = (x, y, t, cls = '', sz = 13, a = 'middle') => `<text x="${x}" y="${y}" class="lbl ${cls}" font-size="${sz}" text-anchor="${a}">${t}</text>`;
@@ -627,7 +663,30 @@ n->end = true;` }
       </section>`;
     }).join('') + '<p class="empty" id="none" hidden>No problems match. Clear the search or pick another filter.</p>';
 
-    document.getElementById('jump').innerHTML = PATTERNS.map(pt => `<a class="chip pat" href="#p-${pt.key}">${esc(pt.name.split(':')[0])}</a>`).join('');
+    const jump = document.getElementById('jump');
+    jump.innerHTML = PATTERNS.map((pt, k) => {
+      const c = data.filter(p => p.pattern === pt.key).length;
+      return `<a class="side-link" href="#p-${pt.key}" data-pat="${pt.key}"><span class="side-no">${String(k + 1).padStart(2, '0')}</span><span class="side-name">${esc(pt.name.split(':')[0])}</span><span class="side-count">${c}</span></a>`;
+    }).join('');
+    // highlight the pattern currently on screen
+    const setActive = key => {
+      jump.querySelectorAll('.side-link').forEach(a => {
+        const on = a.dataset.pat === key;
+        a.classList.toggle('active', on);
+        if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+        if (on && window.matchMedia('(max-width: 900px)').matches) a.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      });
+    };
+    const onScroll = () => {
+      const line = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tools-h')) || 104) + 80;
+      let cur = null;
+      document.querySelectorAll('.pattern:not([hidden])').forEach(sec => { if (sec.getBoundingClientRect().top <= line) cur = sec.dataset.pat; });
+      const first = document.querySelector('.pattern:not([hidden])');
+      setActive(cur || (first && first.dataset.pat));
+    };
+    let ticking = false;
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { onScroll(); ticking = false; }); } }, { passive: true });
+    onScroll();
 
     const FILTERS = [['all', 'All 80'], ['logistics', 'Logistics'], ['Easy', 'Easy'], ['Medium', 'Medium'], ['Hard', 'Hard'], ['todo', 'Not revised']];
     let filter = 'all';
@@ -651,8 +710,11 @@ n->end = true;` }
           card.hidden = !ok; if (ok) any++;
         });
         sec.hidden = !any; shown += any;
+        const link = document.querySelector(`.side-link[data-pat="${sec.dataset.pat}"]`);
+        if (link) { link.hidden = !any; link.querySelector('.side-count').textContent = any; }
       });
       document.getElementById('none').hidden = shown > 0;
+      onScroll();
     }
 
     document.getElementById('q').addEventListener('input', apply);
