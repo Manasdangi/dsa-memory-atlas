@@ -326,7 +326,7 @@ int longestConsecutive(vector<int>& nums) {
 }
 }
 
-// ---------- #7  LC 1481  Least Number of Unique Integers after K Removals  (Medium) [Asked at Blitz]
+// ---------- #7  LC 1481  Least Number of Unique Integers after K Removals  (Medium)
 // Story: You have k bullets. Shoot the SMALLEST gangs first — every gang wiped out is one less unique number.
 
 // [Naive]  Time O(k·u)  ·  Space O(u)
@@ -1295,7 +1295,7 @@ int largestRectangleArea(vector<int>& h) {
 }
 }
 
-// ---------- #27  LC 32  Longest Valid Parentheses  (Hard) [Asked at Blitz]
+// ---------- #27  LC 32  Longest Valid Parentheses  (Hard)
 // Story: The stack remembers where the last "wall" is (an unmatched ')' or the −1 floor). Every match measures its distance back to that wall.
 
 // [Naive]  Time O(n²)  ·  Space O(1)
