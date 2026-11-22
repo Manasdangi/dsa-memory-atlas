@@ -225,7 +225,7 @@ footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
     <span class="lad"><span class="dot fast"></span>Best</span>
     <span>Every card opens with the problem, then a step-by-step picture. Tap a ladder step (Naive, Optimised, Best) and both the picture and the code switch to that solution.</span>
   </div>
-  <p class="tip"><strong>Before the round:</strong> look at the 15 pictures, then pick a pattern and read each story out loud, then write the Best code from memory. Picture yaad rahegi, code apne aap aayega.</p>
+  <p class="tip"><strong>Before the round:</strong> look at the 15 pictures, then pick a pattern and read each story out loud, start from the Naive picture, then climb the ladder to Best and write it from memory. Picture yaad rahegi, code apne aap aayega.</p>
 </header>
 
 <div class="tools">
@@ -583,16 +583,16 @@ n->end = true;` }
     const sel = p.sols.some(s => rank(s.label) === 'fast') ? def : p.sols.length - 1;
     const desc = window.VIZ && VIZ.DESC ? VIZ.DESC[p.id] : null;
     const tags = (p.tag === 'logistics' ? '<span class="pill logistics">Logistics</span>' : '');
-    const ladder = p.sols.map((s, i) => `${i ? '<span class="chev" aria-hidden="true">›</span>' : ''}<button type="button" class="rung ${rank(s.label)}" data-q="${p.id}" data-i="${i}" aria-pressed="${i === sel}"><span class="lab">${esc(s.label)}</span><span class="t">${esc(s.time)}</span></button>`).join('');
+    const ladder = p.sols.map((s, i) => `${i ? '<span class="chev" aria-hidden="true">›</span>' : ''}<button type="button" class="rung ${rank(s.label)}" data-q="${p.id}" data-i="${i}" aria-pressed="${i === 0}"><span class="lab">${esc(s.label)}</span><span class="t">${esc(s.time)}</span></button>`).join('');
     const done = revised.has(p.id);
     return `<article class="card${done ? ' revised' : ''}" id="q-${p.id}" data-q="${p.id}">
       <div class="card-head"><span class="qno">#${p.id}</span><h3><a href="#q-${p.id}">${esc(p.title)}</a></h3>
       <span class="lc">LC ${p.lc}</span><span class="pill ${p.diff}">${p.diff}</span>${tags}</div>
       ${desc ? `<p class="desc">${esc(desc[0])}<span class="ex"><b>e.g.</b>${esc(desc[1])}</span></p>` : ''}
       <p class="hook"><span class="story">story:</span>${hookHTML(p.hook)}</p>
-      <figure class="viz" id="viz-${p.id}" data-def="${sel}">${window.VIZ ? VIZ.render(p.id, sel, 0, sel) : ''}</figure>
+      <figure class="viz" id="viz-${p.id}" data-def="${sel}">${window.VIZ ? VIZ.render(p.id, 0, 0, sel) : ''}</figure>
       <div class="ladder" role="group" aria-label="Solutions from naive to best">${ladder}</div>
-      <div class="panel" id="panel-${p.id}">${solPanel(p, sel)}</div>
+      <div class="panel" id="panel-${p.id}">${solPanel(p, 0)}</div>
       <div class="card-foot"><button type="button" class="rev" data-q="${p.id}" aria-pressed="${done}">${done ? 'Revised ✓' : 'Mark as revised'}</button></div>
     </article>`;
   }
